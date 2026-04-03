@@ -11,14 +11,15 @@ from app.services.config import LOG_LEVEL, LOGFIRE_TOKEN, ensure_dirs
 logging.basicConfig(level=getattr(logging, LOG_LEVEL, logging.INFO))
 logger = logging.getLogger(__name__)
 
-# Optional logfire tracing
+# Optional logfire tracing (Presentation Slide 19: Tracing and Debugging)
 if LOGFIRE_TOKEN:
     try:
         import logfire
 
         logfire.configure()
         logfire.instrument_fastapi()
-        logger.info("Logfire tracing enabled")
+        logfire.instrument_openai_agents()
+        logger.info("Logfire tracing enabled (FastAPI + Agents SDK)")
     except Exception as e:
         logger.warning(f"Logfire setup failed (non-critical): {e}")
 

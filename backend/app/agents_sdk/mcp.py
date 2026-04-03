@@ -9,6 +9,7 @@ from app.services.config import APP_NOTES_DIR
 
 logger = logging.getLogger(__name__)
 
+# >>> EXERCISE_7A_START
 filesystem_mcp_server = MCPServerStdio(
     name="filesystem",
     params={
@@ -16,10 +17,12 @@ filesystem_mcp_server = MCPServerStdio(
         "args": ["-y", "@modelcontextprotocol/server-filesystem", str(APP_NOTES_DIR.resolve())],
     },
 )
+# >>> EXERCISE_7A_END
 
 
 async def connect_mcp() -> None:
     """Connect the filesystem MCP server if not already connected."""
+    # >>> EXERCISE_7B_START
     try:
         if filesystem_mcp_server.session is None:
             await filesystem_mcp_server.connect()
@@ -31,3 +34,4 @@ async def connect_mcp() -> None:
     except Exception as e:
         logger.error(f"Failed to connect filesystem MCP: {e}")
         await filesystem_mcp_server.cleanup()
+    # >>> EXERCISE_7B_END

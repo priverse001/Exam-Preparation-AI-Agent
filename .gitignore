@@ -13,3 +13,4 @@ __pycache__/
 .cursor/
 data/
 workshop_notes/
+.playwright-mcp/

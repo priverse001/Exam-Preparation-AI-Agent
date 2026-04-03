@@ -18,6 +18,7 @@ export async function fetchDocuments(): Promise<DocumentInfo[]> {
 }
 
 export async function uploadDocument(file: File): Promise<DocumentInfo> {
+  // >>> EXERCISE_10_START
   const form = new FormData();
   form.append("file", file);
   const res = await fetch(`${BASE}/documents/upload`, {
@@ -26,6 +27,7 @@ export async function uploadDocument(file: File): Promise<DocumentInfo> {
   });
   if (!res.ok) throw new Error("Upload failed");
   return res.json();
+  // >>> EXERCISE_10_END
 }
 
 export async function deleteDocument(id: string): Promise<void> {

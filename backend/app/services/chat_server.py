@@ -30,6 +30,7 @@ class StudyAssistantServer(ChatKitServer[dict[str, Any]]):
         if input_user_message is None:
             return
 
+        # >>> EXERCISE_8_START
         await connect_mcp()
 
         items_page = await self.store.load_thread_items(thread.id, after=None, limit=100, order="asc", context=context)
@@ -40,6 +41,7 @@ class StudyAssistantServer(ChatKitServer[dict[str, Any]]):
         result = Runner.run_streamed(triage_agent, input=input_items, context=agent_context)
         async for event in stream_agent_response(agent_context, result):
             yield event
+        # >>> EXERCISE_8_END
 
 
 _server = StudyAssistantServer(store=_store)
