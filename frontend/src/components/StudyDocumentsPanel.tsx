@@ -30,7 +30,7 @@ export function StudyDocumentsPanel({
               Study materials
             </h2>
             <p className="mt-2 max-w-2xl text-sm text-slate-600 dark:text-slate-300">
-              Browse your uploaded study documents. Click any document to view its contents.
+              Browse uploaded notes and generated summaries. Click any document to view its contents.
             </p>
           </div>
           <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium uppercase tracking-wide text-slate-600 dark:bg-slate-800/70 dark:text-slate-300">
@@ -148,7 +148,7 @@ function DocumentGrid({
                     <h3 className="text-base font-semibold leading-snug text-slate-800 transition-colors group-hover:text-blue-600 dark:text-slate-100 dark:group-hover:text-blue-300 break-words">
                       {document.title}
                     </h3>
-                    {document.description ? (
+                    {document.summary ? (
                       <p
                         className="text-sm leading-snug text-slate-600 dark:text-slate-300 line-clamp-3 break-words"
                         style={{
@@ -158,11 +158,16 @@ function DocumentGrid({
                           overflow: "hidden",
                         }}
                       >
-                        {document.description}
+                        {document.summary}
                       </p>
                     ) : null}
                   </div>
                 </div>
+                {typeof document.chunk_count === "number" ? (
+                  <p className="pt-2 text-xs text-slate-500 dark:text-slate-400">
+                    {document.chunk_count} searchable sections
+                  </p>
+                ) : null}
               </button>
             </div>
           );

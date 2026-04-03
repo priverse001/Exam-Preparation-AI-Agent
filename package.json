@@ -3,9 +3,8 @@
   "private": true,
   "scripts": {
     "start": "concurrently --kill-others-on-fail --names backend,frontend \"npm run backend\" \"npm run frontend\"",
-    "frontend": "npm --prefix frontend install && npm --prefix frontend run dev",
-    "backend": "uv sync --directory backend && uv run --directory backend uvicorn app.main:app --reload --port 8002",
-    "notionmcp": "npx -y @suekou/mcp-notion-server"
+    "frontend": "npm --prefix frontend install && npm --prefix frontend run dev -- --host 0.0.0.0 --port 5173",
+    "backend": "uv sync --directory backend && uv run --directory backend uvicorn app.main:app --reload --host 0.0.0.0 --port 8002"
   },
   "devDependencies": {
     "@playwright/test": "^1.56.1",

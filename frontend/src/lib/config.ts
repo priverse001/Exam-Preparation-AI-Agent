@@ -37,22 +37,22 @@ export const EXAM_PREP_DOCUMENT_FILE_URL = (documentId: string): string =>
 export const EXAM_PREP_GREETING =
   import.meta.env.VITE_EXAM_PREP_GREETING ??
   import.meta.env.VITE_KNOWLEDGE_GREETING ??
-  "Welcome to your AI Exam Preparation Assistant";
+  "Welcome to your AI course-material copilot";
 
 export const EXAM_PREP_STARTER_PROMPTS: StartScreenPrompt[] = [
   {
-    label: "Study summaries",
-    prompt: "Can you help me create a summary of my uploaded study materials?",
+    label: "Summarize notes",
+    prompt: "Summarize the most important ideas from my uploaded notes.",
     icon: "sparkle",
   },
   {
-    label: "Practice questions",
-    prompt: "Generate practice questions based on my study materials.",
+    label: "Ask a concept question",
+    prompt: "Explain the main idea from my uploaded material with citations.",
     icon: "chart",
   },
   {
-    label: "Create flashcards",
-    prompt: "Create flashcards from my uploaded documents for effective studying.",
+    label: "Create revision notes",
+    prompt: "Create a markdown revision sheet from my uploaded material and save it.",
     icon: "notebook",
   },
 ];
@@ -60,4 +60,4 @@ export const EXAM_PREP_STARTER_PROMPTS: StartScreenPrompt[] = [
 export const EXAM_PREP_COMPOSER_PLACEHOLDER =
   import.meta.env.VITE_EXAM_PREP_COMPOSER_PLACEHOLDER ??
   import.meta.env.VITE_KNOWLEDGE_COMPOSER_PLACEHOLDER ??
-  "Ask questions about your study materials or exam preparation";
+  "Ask about uploaded notes or ask the agent to save revision notes";

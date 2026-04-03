@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import json
 import logging
+from dataclasses import dataclass
 from pathlib import Path
 
 from openai import AsyncOpenAI
@@ -11,62 +13,70 @@ from .config import config
 logger = logging.getLogger(__name__)
 
 
+@dataclass(frozen=True, slots=True)
+class DocumentSummary:
+    description: str
+    summary: str
+
+
 class DocumentSummarizer:
     def __init__(self):
         self.client = AsyncOpenAI(api_key=config.openai_api_key)
 
-    async def generate_description(self, file_content: bytes, filename: str) -> str:
-        logger.info(f"Generating description for document: {filename}")
+    async def summarize_document(self, text_content: str, filename: str) -> DocumentSummary:
+        logger.info(f"Generating summary for document: {filename}")
 
+        cleaned_text = text_content.strip()
+        if not cleaned_text:
+            fallback = self._generate_fallback_description(filename)
+            return DocumentSummary(description=fallback, summary=fallback)
+
+        excerpt = cleaned_text[:6000]
         try:
-            try:
-                text_content = file_content.decode("utf-8")
-            except UnicodeDecodeError:
-                logger.warning(f"Failed to decode {filename} as UTF-8, using fallback description")
-
-                return self._generate_fallback_description(filename)
-
-            max_content_size = 4000
-            if len(text_content) > max_content_size:
-                logger.debug(f"Truncating content for {filename}: {len(text_content)} -> {max_content_size} chars")
-                text_content = text_content[:max_content_size] + "..."
-
-            logger.info(f"Calling OpenAI API to generate description for {filename}")
             response = await self.client.chat.completions.create(
-                model="gpt-4o-mini",
+                model=config.openai_default_model,
+                response_format={"type": "json_object"},
                 messages=[
                     {
                         "role": "system",
-                        "content": """You are a document analyzer. Create a concise, informative 1-2 line description of the document content that would help students understand what this study material contains.
-
-Focus on:
-- Main topic or subject area
-- Type of content (notes, textbook, slides, research paper, etc.)
-- Key concepts or themes
-
-Keep it under 100 characters and make it useful for study organization.""",
+                        "content": (
+                            "You are helping students organize study material for a workshop. "
+                            "Return valid JSON with keys `description` and `summary`. "
+                            "`description` must be a short one-line label under 110 characters. "
+                            "`summary` must be a crisp 3-4 sentence explanation of the document, "
+                            "covering the topic, key ideas, and why it is useful for revision."
+                        ),
                     },
                     {
                         "role": "user",
-                        "content": f"Analyze this document and provide a brief description:\n\nFilename: {filename}\n\nContent:\n{text_content}",
+                        "content": f"Filename: {filename}\n\nDocument excerpt:\n{excerpt}",
                     },
                 ],
-                max_tokens=150,
-                temperature=0.3,
+                max_tokens=220,
+                temperature=0.2,
             )
 
-            description = response.choices[0].message.content or ""
+            raw_content = response.choices[0].message.content or "{}"
+            parsed = json.loads(raw_content)
+            description = str(parsed.get("description", "")).strip()
+            summary = str(parsed.get("summary", "")).strip()
 
-            description = description.strip().strip('"').strip("'")
-            if len(description) > 200:
-                description = description[:197] + "..."
+            fallback = self._generate_fallback_description(filename)
+            if not description:
+                description = fallback
+            if not summary:
+                summary = fallback
 
-            logger.debug(f"Generated description for {filename}: {description}")
-            return description or self._generate_fallback_description(filename)
+            if len(description) > 140:
+                description = description[:137].rstrip() + "..."
+
+            logger.debug(f"Generated summary metadata for {filename}")
+            return DocumentSummary(description=description, summary=summary)
 
         except Exception as e:
-            logger.exception(f"Error generating description for {filename}: {e}")
-            return self._generate_fallback_description(filename)
+            logger.exception(f"Error generating summary for {filename}: {e}")
+            fallback = self._generate_fallback_description(filename)
+            return DocumentSummary(description=fallback, summary=fallback)
 
     @staticmethod
     def _generate_fallback_description(filename: str) -> str:
@@ -77,33 +87,25 @@ Keep it under 100 characters and make it useful for study organization.""",
         name_part = file_path.stem
 
         type_descriptions = {
-            ".pdf": "PDF document",
-            ".txt": "Text document",
-            ".md": "Markdown document",
-            ".html": "Web document",
-            ".docx": "Word document",
-            ".json": "JSON data file",
+            ".pdf": "PDF study material",
+            ".txt": "Text study material",
+            ".md": "Markdown study material",
+            ".html": "Web study material",
+            ".docx": "Word study material",
+            ".json": "Structured study material",
         }
 
-        type_desc = type_descriptions.get(extension, "Document")
+        type_desc = type_descriptions.get(extension, "Study material")
 
         if any(keyword in name_part.lower() for keyword in ["notes", "note"]):
-            description = f"Study notes - {type_desc}"
-        elif any(keyword in name_part.lower() for keyword in ["lecture", "slides"]):
-            description = f"Lecture material - {type_desc}"
-        elif any(keyword in name_part.lower() for keyword in ["textbook", "book", "chapter"]):
-            description = f"Textbook content - {type_desc}"
-        elif any(keyword in name_part.lower() for keyword in ["assignment", "homework", "hw"]):
-            description = f"Assignment material - {type_desc}"
-        elif any(keyword in name_part.lower() for keyword in ["exam", "test", "quiz"]):
-            description = f"Exam preparation - {type_desc}"
-        else:
-            description = f"{type_desc} for study reference"
-
-        logger.debug(f"Generated fallback description for {filename}: {description}")
-        return description
+            return f"Study notes covering {name_part.replace('-', ' ').replace('_', ' ')}"
+        if any(keyword in name_part.lower() for keyword in ["lecture", "slides"]):
+            return f"Lecture material on {name_part.replace('-', ' ').replace('_', ' ')}"
+        if any(keyword in name_part.lower() for keyword in ["textbook", "book", "chapter"]):
+            return f"Textbook-style material on {name_part.replace('-', ' ').replace('_', ' ')}"
+        return f"{type_desc} for {name_part.replace('-', ' ').replace('_', ' ')}"
 
 
 document_summarizer = DocumentSummarizer()
 
-__all__ = ["DocumentSummarizer", "document_summarizer"]
+__all__ = ["DocumentSummarizer", "DocumentSummary", "document_summarizer"]

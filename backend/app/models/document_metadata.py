@@ -12,10 +12,13 @@ class DocumentMetadata:
     original_filename: str
     title: str
     description: str
+    summary: str
     file_size: int
     upload_time: int
     file_type: str
+    chunk_count: int = 0
     local_file_path: str | None = None
+    extracted_text_path: str | None = None
 
 
 class DocumentMetadataStore:
@@ -31,7 +34,17 @@ class DocumentMetadataStore:
                 with open(self.storage_path, encoding="utf-8") as f:
                     data = json.load(f)
                     self._metadata = {
-                        file_id: DocumentMetadata(**metadata_dict) for file_id, metadata_dict in data.items()
+                        file_id: DocumentMetadata(
+                            summary=metadata_dict.get("summary", metadata_dict.get("description", "")),
+                            chunk_count=metadata_dict.get("chunk_count", 0),
+                            extracted_text_path=metadata_dict.get("extracted_text_path"),
+                            **{
+                                key: value
+                                for key, value in metadata_dict.items()
+                                if key not in {"summary", "chunk_count", "extracted_text_path"}
+                            },
+                        )
+                        for file_id, metadata_dict in data.items()
                     }
         except Exception as e:
             print(f"Error loading document metadata: {e}")
@@ -51,6 +64,9 @@ class DocumentMetadataStore:
 
     def get_metadata(self, file_id: str) -> DocumentMetadata | None:
         return self._metadata.get(file_id)
+
+    def list_metadata(self) -> list[DocumentMetadata]:
+        return list(self._metadata.values())
 
     def delete_metadata(self, file_id: str) -> bool:
         if file_id in self._metadata:

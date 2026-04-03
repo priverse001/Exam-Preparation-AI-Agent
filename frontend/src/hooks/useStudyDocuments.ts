@@ -7,6 +7,8 @@ export type StudyDocument = {
   filename: string;
   title: string;
   description: string | null;
+  summary: string | null;
+  chunk_count?: number;
 };
 
 type DocumentsResponse = {

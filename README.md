@@ -1,64 +1,88 @@
-# Exam Preparation Agent Workshop
+# IIT BHU AI Workshop
 
-## What's Inside
-- FastAPI service that is backed by OpenAI Agents.
-- ChatKit Web Component wrapped in React with a document panel.
-- Vector-store tooling for ingesting documents and exposing REST endpoints for previews, uploads.
+This branch is the working reference implementation for an IIT BHU workshop on agents, tools, RAG, and MCP.
 
-## Quick Setup Verification
+The app is an AI course-material copilot:
+- students upload notes or slides
+- the backend extracts and summarizes them
+- the agent answers questions with citations from uploaded material
+- an MCP-powered notes agent can save revision notes as markdown files
 
-**Before starting, run the setup verification script to ensure your system is ready:**
+## Branch Roles
+- `master`: original reference implementation from the earlier workshop
+- `workshop`: original student scaffold from the earlier workshop
+- `iit-bhu`: IIT BHU student scaffold branch
+- `iit-bhu-solution`: IIT BHU reference/solution branch
 
-### Windows
-```cmd
-cd setup
-setup_check.bat
-```
+## Workshop Concepts
+- `LLMs`: used for summary generation and grounded answers
+- `Tools`: the study agent calls local retrieval tools
+- `RAG`: uploaded material is chunked, indexed locally, and searched at answer time
+- `MCP`: the notes agent uses filesystem MCP tools to create markdown revision sheets
 
-### macOS / Linux
-```bash
-cd setup
-./setup_check.sh
-```
+## Recommended Setup
 
-The script will:
-- ✅ Check all prerequisites are installed and correct versions
-- ✅ Auto-create `.env` file from template if needed
-- ✅ Offer to install missing tools (like `uv`) automatically
-- ✅ Provide detailed instructions for anything that needs manual setup
-- ✅ Test that dependencies can be installed
+Use a dev container or Docker. The goal is to avoid Python/Node/tooling drift across student laptops.
 
-**📖 For detailed instructions and troubleshooting, see [setup/SETUP_GUIDE.md](setup/SETUP_GUIDE.md)**
+### Prerequisites
+- Docker Desktop or another Docker-compatible runtime
+- Git
+- An `OPENAI_API_KEY`
 
-## Prerequisites
+### Option 1: Dev Container
+1. Copy `.env.template` to `.env`
+2. Set `OPENAI_API_KEY` in `.env`
+3. Open the repo in a devcontainer
+4. In the container terminal, run `npm run start`
+5. Open the forwarded frontend port in the browser
+
+### Option 2: Plain Docker Compose
+1. Copy `.env.template` to `.env`
+2. Set `OPENAI_API_KEY` in `.env`
+3. Start the container shell:
+   - `docker compose up -d`
+   - `docker compose exec app bash`
+4. Inside the container, run `npm run start`
+5. Open [http://localhost:5173](http://localhost:5173)
+
+The frontend talks to the backend on `http://localhost:8002`.
+
+## Local Development Without Containers
+
+Containers are the preferred workshop path. If you want to run locally instead:
 - Python 3.11+
-- [nvm](https://github.com/nvm-sh/nvm) (Node Version Manager)
-- Node.js 22+ (installed via `nvm`)
-- [uv](https://docs.astral.sh/uv/getting-started/installation/)
-- [git](https://git-scm.com/)
-- OpenAI API key as `OPENAI_API_KEY` in `.env`
+- Node.js 22+
+- `uv`
 
-## Steps to Run:
-### Setup Notion
-1. https://github.com/makenotion/notion-mcp-server/blob/main/README.md#1-setting-up-integration-in-notion
-2. https://github.com/makenotion/notion-mcp-server/blob/main/README.md#2-connecting-content-to-integration
-3. Copy `Internal Integration Secret` and put in your `.env`
+Then run:
+```bash
+cp .env.template .env
+npm install
+npm run start
+```
 
-### Setup Logfire
-1. https://logfire-us.pydantic.dev/login
-2. Signin using preferred method
-3. Click "Lets go" to use default `starter-project`
-4. Copy `Write token` and put in your `.env`
+## What Changed For IIT BHU
+- removed the hosted OpenAI vector-store dependency from the core path
+- removed Notion from the workshop-critical MCP flow
+- replaced it with a local filesystem MCP demo
+- reduced required setup to mainly Docker plus `OPENAI_API_KEY`
+- made upload summaries explicit so they can be shown and discussed during the workshop
 
-### Start the FastAPI backend
-1. Setup environment
-   - Copy the template environment file into your own `.env` file: `cp .env.template .env`
-2. Create or reuse a vector store:
-   - Visit [OpenAI Vector Stores](https://platform.openai.com/storage/vector_stores) and create a vector store, or, Use existing vector store
-   - Copy the Vector Store ID (e.g. `vs_abc123`) and set in your `.env` file, alongside your OpenAI API Key
-3. Use `nvm` OR ensure Node V22+: `nvm use`
-4. Install dependencies and launch the API: `npm run backend`
+## Key Paths
+- Backend agent wiring: `backend/app/agents_sdk/`
+- Local retrieval and ingestion: `backend/app/services/vector_store_service.py`
+- Document summaries: `backend/app/services/document_summarizer.py`
+- Frontend app: `frontend/src/`
+- Workshop sample documents: `resources/documents/`
+- MCP-created notes: `workshop_notes/`
 
-### Start the React Frontend
-1. Use `nvm` OR ensure Node V22+: `nvm use`
-2. Launch frontend server: `npm run frontend`
+## Workshop Flow
+1. Upload a few notes from `resources/documents/` or your own material.
+2. Ask the agent to summarize or explain a topic from the uploaded notes.
+3. Ask for a comparison or concept explanation with citations.
+4. Ask the MCP notes agent to save a revision sheet as markdown.
+
+## Notes
+- Indexed data and uploaded files are stored locally in `data/`.
+- Generated markdown notes are stored in `workshop_notes/`.
+- Logfire is optional and disabled unless `LOGFIRE_TOKEN` is set.

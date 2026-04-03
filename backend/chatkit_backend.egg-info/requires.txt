@@ -4,6 +4,8 @@ uvicorn[standard]
 openai
 openai-chatkit
 python-dotenv
+pypdf
+python-docx
 pre-commit
 pytest
 pytest-asyncio

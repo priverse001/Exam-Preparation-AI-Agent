@@ -25,11 +25,11 @@ router = APIRouter()
 
 @router.get("/documents")
 async def list_documents() -> dict[str, Any]:
-    logger.info("Listing documents from vector store")
+    logger.info("Listing documents from local knowledge base")
 
     try:
         files = await vector_store_service.list_vector_store_files(limit=100)
-        logger.info(f"Retrieved {len(files)} files from vector store")
+        logger.info(f"Retrieved {len(files)} indexed files")
 
         documents = []
         for file in files:
@@ -44,9 +44,11 @@ async def list_documents() -> dict[str, Any]:
                                 "filename": metadata.original_filename,
                                 "title": metadata.title,
                                 "description": metadata.description,
+                                "summary": metadata.summary,
                                 "created_at": file.created_at,
                                 "status": file.status,
                                 "usage_bytes": file.usage_bytes or metadata.file_size,
+                                "chunk_count": metadata.chunk_count,
                             }
                         )
                     else:
@@ -62,7 +64,7 @@ async def list_documents() -> dict[str, Any]:
 
 @router.post("/documents/upload")
 async def upload_file_to_vector_store(file: Annotated[UploadFile, File()]) -> dict[str, Any]:
-    logger.info(f"Uploading file to vector store: {file.filename}")
+    logger.info(f"Uploading file to local knowledge base: {file.filename}")
 
     if not file.filename:
         logger.error("File upload attempted without filename")
@@ -82,7 +84,7 @@ async def upload_file_to_vector_store(file: Annotated[UploadFile, File()]) -> di
         logger.debug(f"File read successfully: {file.filename}, size: {len(content)} bytes")
 
         data = await vector_store_service.add_file_to_vector_store(content, file.filename, file_extension)
-        logger.info(f"File uploaded successfully to vector store: {file.filename}")
+        logger.info(f"File uploaded successfully to local knowledge base: {file.filename}")
         return data
     except RuntimeError as exc:
         logger.error(f"Error uploading file {file.filename}: {exc}")
@@ -103,6 +105,7 @@ async def get_document_info(document_id: str) -> dict[str, Any]:
                 "filename": metadata.original_filename,
                 "title": metadata.title,
                 "description": metadata.description,
+                "summary": metadata.summary,
                 "created_at": file_info.created_at,
                 "status": file_info.status,
                 "usage_bytes": file_info.usage_bytes or metadata.file_size,
@@ -110,6 +113,7 @@ async def get_document_info(document_id: str) -> dict[str, Any]:
                 "object": file_info.object,
                 "file_type": metadata.file_type,
                 "upload_time": metadata.upload_time,
+                "chunk_count": metadata.chunk_count,
             }
         else:
             return {}
@@ -126,10 +130,11 @@ async def get_document_file(document_id: str) -> Response:
     logger.info(f"Retrieving file content for document ID: {document_id}")
 
     try:
-        file_info = await vector_store_service.get_file_info(document_id)
         metadata = metadata_store.get_metadata(document_id)
+        if metadata is None:
+            raise HTTPException(status_code=404, detail="Document not found")
 
-        filename = metadata.original_filename if metadata else file_info.filename
+        filename = metadata.original_filename
 
         if metadata and metadata.local_file_path:
             logger.info(f"Attempting to serve from local storage: {metadata.local_file_path}")
@@ -172,19 +177,6 @@ async def delete_document(document_id: str) -> dict[str, Any]:
         metadata = metadata_store.get_metadata(document_id)
 
         delete_results = await vector_store_service.delete_file_completely(document_id)
-
-        local_deleted = False
-        if metadata and metadata.local_file_path:
-            try:
-                local_path = Path(metadata.local_file_path)
-                if local_path.exists():
-                    local_path.unlink()
-                    local_deleted = True
-                    logger.warning(f"Deleted local file: {metadata.local_file_path}")
-            except Exception as e:
-                logger.warning(f"Failed to delete local file: {e}")
-
-        delete_results["local_storage"] = local_deleted
 
         metadata_deleted = metadata_store.delete_metadata(document_id)
         logger.debug(f"Metadata deletion result: {metadata_deleted}")

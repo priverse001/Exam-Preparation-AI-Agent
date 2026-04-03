@@ -1,23 +1,20 @@
 #!/bin/bash
-# Unix/Linux/macOS shell script wrapper for setup_check.py
-# This makes it easier to run on Unix-like systems
-
 set -e
 
-echo "Running Setup Verification Script..."
+echo "Running IIT BHU Workshop Setup Check..."
 echo ""
 
-# Get the directory where this script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# Check if Python is available
-if ! command -v python3 &> /dev/null; then
-    echo "ERROR: Python 3 is not installed or not in PATH"
-    echo "Please install Python 3.11+ from your package manager or https://www.python.org/downloads/"
+if command -v python3 &> /dev/null; then
+    cd "$SCRIPT_DIR"
+    python3 setup_check.py
+elif command -v python &> /dev/null; then
+    cd "$SCRIPT_DIR"
+    python setup_check.py
+else
+    echo "ERROR: Python 3 is not installed or not in PATH."
+    echo "The setup script needs Python to run, but the workshop itself only requires Docker."
+    echo "Install Python 3.11+ or just verify Docker manually: docker compose version"
     exit 1
 fi
-
-# Run the Python script from the setup directory
-cd "$SCRIPT_DIR"
-python3 setup_check.py
-

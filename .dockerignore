@@ -1,0 +1,12 @@
+.git
+.cursor
+.idea
+.venv
+backend/.venv
+node_modules
+frontend/node_modules
+dist
+data
+workshop_notes
+__pycache__
+*.pyc

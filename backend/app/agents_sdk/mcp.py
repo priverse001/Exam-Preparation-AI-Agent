@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 
 from agents.mcp import MCPServerStdio
 
@@ -9,27 +10,27 @@ from ..services.config import config
 
 logger = logging.getLogger(__name__)
 
-NotionMCPServer = MCPServerStdio(
+
+notes_dir = Path(config.notes_dir)
+notes_dir.mkdir(parents=True, exist_ok=True)
+
+StudyNotesMCPServer = MCPServerStdio(
     params={
         "command": "npx",
-        "args": ["-y", "@suekou/mcp-notion-server"],
-        "env": {
-            "NOTION_API_TOKEN": config.notion_token,
-            "NOTION_TOKEN": config.notion_token,
-        },
+        "args": ["-y", "@modelcontextprotocol/server-filesystem", str(notes_dir)],
     },
 )
 
 
 async def connect():
     try:
-        if NotionMCPServer.session is None:
-            await NotionMCPServer.connect()
-            available_tools = await NotionMCPServer.list_tools()
+        if StudyNotesMCPServer.session is None:
+            await StudyNotesMCPServer.connect()
+            available_tools = await StudyNotesMCPServer.list_tools()
             logger.info(f"Available tools: {[tool.name for tool in available_tools]}")
-            logger.info("Notion MCP Server connected successfully")
+            logger.info(f"Study Notes MCP Server connected successfully at {notes_dir}")
         else:
-            logger.warning("Notion MCP already connected")
+            logger.debug("Study Notes MCP already connected")
     except Exception as e:
-        logger.error(f"Error connecting to Notion MCP Server: {e}")
-        await NotionMCPServer.cleanup()
+        logger.error(f"Error connecting to Study Notes MCP Server: {e}")
+        await StudyNotesMCPServer.cleanup()

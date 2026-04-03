@@ -17,7 +17,7 @@ if not config.validate():
 
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="Exam Assistant API")
+app = FastAPI(title="AI Course Material Copilot API")
 
 setup_logging(app)
 

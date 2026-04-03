@@ -82,9 +82,11 @@ venv
 workspace.code-workspace
 
 .claude
+.cursor/
 
 backend/data/**
 
 data/
 data/uploaded_files
 data/document_metadata.json
+workshop_notes/

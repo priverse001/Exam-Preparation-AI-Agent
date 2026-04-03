@@ -6,6 +6,7 @@ from typing import Annotated
 from chatkit.server import StreamingResult
 from fastapi import APIRouter
 from fastapi import Depends
+from fastapi import HTTPException
 from fastapi import Request
 from fastapi import Response
 from fastapi.responses import StreamingResponse
@@ -45,6 +46,7 @@ async def chatkit_endpoint(
 
     except Exception as e:
         logger.error(f"Error processing chatkit request: {e}")
+        raise HTTPException(status_code=500, detail="Failed to process chat request") from e
 
 
 @router.get("/health")

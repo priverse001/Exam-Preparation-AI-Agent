@@ -63,7 +63,7 @@ export function FileUpload({ onUploadComplete, className }: FileUploadProps) {
     // Show status
     if (errorCount === 0) {
       setUploadStatus({
-        message: `✅ Successfully uploaded ${successCount} file${successCount !== 1 ? "s" : ""}!`,
+        message: `✅ Uploaded ${successCount} file${successCount !== 1 ? "s" : ""} and indexed them for search.`,
         type: "success",
       });
     } else if (successCount > 0) {
@@ -161,7 +161,7 @@ export function FileUpload({ onUploadComplete, className }: FileUploadProps) {
           <div className="flex flex-col items-center gap-2">
             <div className="h-5 w-5 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
             <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
-              Uploading files...
+              Uploading and indexing files...
             </span>
           </div>
         ) : (

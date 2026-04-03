@@ -74,13 +74,13 @@ export default function Home({ scheme, onThemeChange }: HomeProps) {
         <header className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-3">
             <p className="text-sm uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
-              AI Exam Preparation Assistant
+              IIT BHU AI Workshop
             </p>
             <h1 className="text-3xl font-semibold sm:text-4xl">
-              Master your study materials
+              Build your course-material copilot
             </h1>
             <p className="max-w-3xl text-sm text-slate-600 dark:text-slate-300">
-              Ask questions about your uploaded study materials, create flashcards, and get personalized study assistance. The AI searches through your documents and provides cited references to help you learn effectively.
+              Upload notes, generate quick summaries, ask grounded questions, and use MCP to turn answers into revision notes. This app is designed as a hands-on introduction to agents, tools, RAG, and MCP.
             </p>
           </div>
           <ThemeToggle value={scheme} onChange={onThemeChange} />

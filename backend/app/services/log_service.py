@@ -46,9 +46,10 @@ class ColoredFormatter(logging.Formatter):
 
 def setup_logging(app: FastAPI) -> None:
     enable_verbose_stdout_logging()
-    logfire.configure(token=config.logfire_token)
-    logfire.instrument_openai_agents()
-    logfire.instrument_fastapi(app)
+    if config.logfire_token:
+        logfire.configure(token=config.logfire_token)
+        logfire.instrument_openai_agents()
+        logfire.instrument_fastapi(app)
 
     log_level = config.log_level
 
@@ -62,7 +63,8 @@ def setup_logging(app: FastAPI) -> None:
         root_logger.removeHandler(handler)
 
     root_logger.addHandler(console_handler)
-    root_logger.addHandler(logfire.LogfireLoggingHandler())
+    if config.logfire_token:
+        root_logger.addHandler(logfire.LogfireLoggingHandler())
 
     logging.getLogger("uvicorn").setLevel(logging.INFO)
     logging.getLogger("uvicorn.access").setLevel(logging.INFO)
