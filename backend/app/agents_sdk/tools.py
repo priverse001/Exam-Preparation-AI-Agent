@@ -81,7 +81,6 @@ def list_uploaded_materials() -> str:
     Returns:
         A formatted list of all uploaded documents with their summaries.
     """
-    # >>> EXERCISE_3_START
     docs = document_store.list_all_metadata()
 
     if not docs:
@@ -92,4 +91,3 @@ def list_uploaded_materials() -> str:
         lines.append(f"- **{doc.filename}** (id: {doc.id}): {doc.description or doc.summary[:80]}")
 
     return f"Uploaded documents ({len(docs)} total):\n" + "\n".join(lines)
-    # >>> EXERCISE_3_END

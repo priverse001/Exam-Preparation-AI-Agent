@@ -15,6 +15,7 @@ the **RevisionNotesAgent**.
 respond: "Please upload some study materials first, and then I can help you with that!"
 """
 
+# >>> EXERCISE_PROMPT_START
 COURSE_MATERIAL_AGENT_PROMPT = """\
 You are a knowledgeable and friendly study assistant that helps university students \
 understand their course materials.
@@ -36,6 +37,7 @@ upload more materials or rephrase their question.
 - If summarizing a document, cover all major topics mentioned in it.
 - Keep responses well-structured with headings when appropriate.
 """
+# >>> EXERCISE_PROMPT_END
 
 REVISION_NOTES_AGENT_PROMPT = """\
 You are a revision notes specialist. You create well-structured markdown study notes \

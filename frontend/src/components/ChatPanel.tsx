@@ -6,7 +6,6 @@ interface ChatPanelProps {
 
 export function ChatPanel({ theme }: ChatPanelProps) {
   const chatkit = useChatKit({
-    // >>> EXERCISE_9_START
     api: {
       url: "/exam-assistant/chatkit",
       domainKey: "domain_pk_localhost_dev",
@@ -50,7 +49,6 @@ export function ChatPanel({ theme }: ChatPanelProps) {
     onError: ({ error }) => {
       console.error("ChatKit error:", error);
     },
-    // >>> EXERCISE_9_END
   });
 
   return (
