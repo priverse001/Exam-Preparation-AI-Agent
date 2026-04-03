@@ -1,0 +1,33 @@
+[project]
+name = "study-assistant-ai-boilerplate"
+version = "0.1.0"
+description = "Workshop-friendly AI study assistant boilerplate"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "openai",
+    "openai-agents",
+    "openai-chatkit",
+    "python-dotenv",
+    "pypdf",
+    "python-docx",
+    "logfire",
+    "logfire[fastapi]",
+    "pytest",
+    "pytest-asyncio",
+    "pre-commit",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "mypy",
+]
+
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["backend"]

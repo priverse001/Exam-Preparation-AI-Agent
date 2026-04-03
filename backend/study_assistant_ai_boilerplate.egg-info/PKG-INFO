@@ -1,0 +1,21 @@
+Metadata-Version: 2.4
+Name: study-assistant-ai-boilerplate
+Version: 0.1.0
+Summary: Workshop-friendly AI study assistant boilerplate
+Requires-Python: >=3.11
+Requires-Dist: fastapi
+Requires-Dist: uvicorn[standard]
+Requires-Dist: openai
+Requires-Dist: openai-agents
+Requires-Dist: openai-chatkit
+Requires-Dist: python-dotenv
+Requires-Dist: pypdf
+Requires-Dist: python-docx
+Requires-Dist: logfire
+Requires-Dist: logfire[fastapi]
+Requires-Dist: pytest
+Requires-Dist: pytest-asyncio
+Requires-Dist: pre-commit
+Provides-Extra: dev
+Requires-Dist: ruff; extra == "dev"
+Requires-Dist: mypy; extra == "dev"

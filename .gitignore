@@ -1,0 +1,15 @@
+.env
+.venv/
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.idea/
+.cursor/
+data/
+workshop_notes/
