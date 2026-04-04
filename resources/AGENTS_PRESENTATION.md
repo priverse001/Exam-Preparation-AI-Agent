@@ -497,59 +497,27 @@ pip install openai-agents
 | Debugging | Print statements | Built-in tracing |
 | Streaming | Manual handling | Built-in |
 
----
-
-## Slide 12: Agents SDK - Deep Dive
-
-### Agent Anatomy
+### Agent Anatomy (Quick Reference)
 
 ```python
-from agents import Agent
+from agents import Agent, Runner
 
 agent = Agent(
-    # Basic configuration
     name="Assistant",
     instructions="You are a helpful assistant",
-    
-    # Tools this agent can use
-    tools=[tool1, tool2],
-    
-    # Other agents this can hand off to
-    handoffs=[other_agent1, other_agent2],
-    
-    # Force structured output format
-    output_type=MyPydanticModel,
-    
-    # Model configuration
+    tools=[tool1, tool2],              # Functions the agent can call
+    handoffs=[other_agent],            # Agents it can delegate to
+    output_type=MyPydanticModel,       # Force structured output
     model="gpt-4o-mini",
-    model_settings=ModelSettings(
-        temperature=0.7,
-        max_tokens=1000
-    ),
-    
-    # How to handle tool results
-    tool_use_behavior="run_llm_again",  # or "stop_on_first_tool"
-    
-    # Description for handoffs
-    handoff_description="Specialist for handling X tasks"
 )
-```
 
-### Running Agents
-
-```python
-from agents import Runner
-
-# Synchronous
-result = Runner.run_sync(agent, "Hello!")
-
-# Asynchronous (recommended)
+# Run the agent
 result = await Runner.run(agent, "Hello!")
+print(result.final_output)
 
-# Streaming
+# Or stream in real-time
 result = Runner.run_streamed(agent, "Hello!")
 async for event in result.stream_events():
-    # Process events in real-time
     pass
 ```
 
@@ -906,129 +874,15 @@ if __name__ == "__main__":
 
 ---
 
-## Slide 17: Advanced Multi-Agent Patterns
+## Slide 17: Advanced Topics (Brief Overview)
 
-### Pattern 1: Sequential Processing (Pipeline)
+### Other Patterns to Explore
 
-Agents work in sequence, each adding to the result:
+**Sequential Pipeline**: Chain agents where each adds to the result (outline → quality check → final story).
 
-```python
-# Agent 1: Generates outline
-outline_agent = Agent(
-    name="Outline Creator",
-    instructions="Create a story outline",
-    output_type=str
-)
+**Sessions**: The SDK provides `SQLiteSession` for automatic conversation history — no manual message list management needed.
 
-# Agent 2: Checks quality
-quality_checker = Agent(
-    name="Quality Checker",
-    instructions="Evaluate if the outline is good",
-    output_type=QualityReport
-)
-
-# Agent 3: Writes final story
-story_writer = Agent(
-    name="Story Writer",
-    instructions="Write the full story from the outline",
-    output_type=str
-)
-
-# Sequential execution
-outline = await Runner.run(outline_agent, "Write a sci-fi story")
-quality = await Runner.run(quality_checker, outline.final_output)
-
-if quality.final_output.is_good:
-    story = await Runner.run(story_writer, outline.final_output)
-    print(story.final_output)
-```
-
-### Pattern 2: Hierarchical (Manager-Worker)
-
-```
-       Manager Agent
-          │
-    ┌─────┼─────┐
-    │     │     │
-Worker Worker Worker
-```
-
----
-
-## Slide 18: Sessions - Managing Conversation History
-
-### The Session Problem
-
-Without sessions, you must manually track conversation history:
-
-```python
-# Manual history management (tedious!)
-history = []
-history.append({"role": "user", "content": "Hello"})
-result = await Runner.run(agent, input=history)
-history.append({"role": "assistant", "content": result.final_output})
-history.append({"role": "user", "content": "What did I say?"})
-result = await Runner.run(agent, input=history)
-```
-
-### Sessions to the Rescue!
-
-```python
-from agents import SQLiteSession, Runner
-
-# Create a session
-session = SQLiteSession(session_id="some_session_id")
-
-# First interaction
-result1 = await Runner.run(
-    agent,
-    input="My name is Alice",
-    session=session  # Session tracks history
-)
-
-# Second interaction - agent remembers!
-result2 = await Runner.run(
-    agent,
-    input="What's my name?",
-    session=session  # Uses same session
-)
-
-print(result2.final_output)  # "Your name is Alice!"
-```
----
-
-## Slide 19: Tracing and Debugging
-
-### Why Tracing?
-
-With complex multi-agent systems, you need to understand:
-- Which tools were called?
-- What were the inputs/outputs?
-- Where did errors occur?
-- How long did each step take?
-
-### Built-in Tracing
-
-```python
-from agents import trace, Runner
-import logfire
-
-# Setup tracing
-logfire.configure()
-logfire.instrument_openai_agents()
-
-# Wrap operations in traces
-async def process_query(query: str):
-    with trace("Student Query Processing"):
-        # This entire operation is traced
-        result = await Runner.run(agent, query)
-        return result
-
-# Run and view traces at logfire.ai
-await process_query("Explain binary trees")
-```
-
-### What You See in Traces:
+**Tracing**: Use `logfire.instrument_openai_agents()` to see the full execution trace — which agent ran, which tools were called, how long each step took.
 
 ```
 Student Query Processing (2.3s)
@@ -1036,11 +890,11 @@ Student Query Processing (2.3s)
 │  └─ Handoff to Content Expert
 ├─ Agent Run: Content Expert (1.8s)
 │  ├─ Tool Call: search_course_materials (0.2s)
-│  │  ├─ Input: {"topic": "binary trees"}
-│  │  └─ Output: "Binary trees are hierarchical..."
 │  └─ LLM Call: gpt-4o-mini (1.5s)
 └─ Final Output: "A binary tree is..." (0.2s)
 ```
+
+*These topics are covered in the advanced documentation. For today, we'll focus on the core patterns you've already learned.*
 
 ---
 
@@ -1659,34 +1513,18 @@ Each integration requires:
 - ✅ Better data access
 - ✅ Seamless integrations
 
----
+### The MCP Ecosystem (100+ Servers)
 
-## Slide 24: Why MCP Matters - The Ecosystem
-
-### The MCP Ecosystem is Growing Fast
-
-**Sample MCP Servers (100+):**
-- File Search, Google Drive: Documents Management
-- Notion, Linear, Jira: Project management
-- Gmail, Outlook, Slack: Communication management
-- Browserbase: Browser automation
-- Supabase, MongoDB, Postgres: Databases
-- GitHub: Code Repository
-- And hundreds more at [mcpservers.org](https://mcpservers.org/)
-
-### Traditional Integration vs MCP
+Notion, GitHub, Slack, Gmail, Postgres, MongoDB, Google Drive, Browserbase, and hundreds more at [mcpservers.org](https://mcpservers.org/)
 
 | Aspect | Traditional | With MCP |
 |--------|------------|----------|
-| **Development Time** | Days/weeks per integration | Minutes |
 | **Code Required** | 100s of lines | 2-3 lines |
 | **Maintenance** | You maintain it | Community maintains |
-| **Updates** | Manual updates needed | Automatic |
-| **Error Handling** | Custom per service | Standardized |
 
+---
 
-
-## Slide 25: MCP in Action - Simple Proof of Concept
+## Slide 24: MCP in Action - Simple Proof of Concept
 
 ### Let's Build an Agent with Filesystem Access
 
