@@ -4,8 +4,10 @@
  * Assumes setup.spec.ts has already seeded documents.
  */
 import { test, expect } from "@playwright/test";
+import * as path from "path";
 import {
   SAMPLE_DOCS,
+  DOCS_DIR,
   chatFrame,
   uploadDocViaAPI,
   deleteAllDocsViaAPI,
@@ -54,6 +56,36 @@ test.describe("Document Panel", () => {
     // Close modal
     await modal.getByRole("button").first().click();
     await expect(modal).not.toBeVisible();
+  });
+
+  test("upload a document via the browser file chooser", async ({ page }) => {
+    const docsBefore = await listDocsViaAPI();
+
+    // Trigger file chooser by clicking the upload label, then set the file
+    const [fileChooser] = await Promise.all([
+      page.waitForEvent("filechooser"),
+      page.locator('label:has-text("Upload Study Materials")').click(),
+    ]);
+    await fileChooser.setFiles(path.join(DOCS_DIR, "CPU.md"));
+
+    // Wait for the upload to process (AI summarization takes a few seconds)
+    await page.waitForTimeout(8000);
+
+    // Should now have one more document
+    const docsAfter = await listDocsViaAPI();
+    expect(docsAfter.length).toBe(docsBefore.length + 1);
+
+    // The new doc should appear in the sidebar
+    const newDoc = docsAfter.find(
+      (d) => !docsBefore.some((b) => b.id === d.id)
+    );
+    expect(newDoc).toBeTruthy();
+    await expect(page.getByText(newDoc!.filename).first()).toBeVisible();
+
+    // Clean up — delete the duplicate so other tests aren't affected
+    await fetch(`http://localhost:8002/exam-assistant/documents/${newDoc!.id}`, {
+      method: "DELETE",
+    });
   });
 
   test("delete a document with confirmation dialog", async ({ page }) => {
