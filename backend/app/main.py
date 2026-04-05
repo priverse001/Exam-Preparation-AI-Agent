@@ -7,9 +7,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.agents_sdk.mcp import connect_mcp
 from app.routers import chat, documents
-from app.services.config import LOG_LEVEL, LOGFIRE_TOKEN, ensure_dirs
+from app.services.config import LOGFIRE_TOKEN, ensure_dirs
+from app.services.log_service import setup_logging
 
-logging.basicConfig(level=getattr(logging, LOG_LEVEL, logging.INFO))
+setup_logging()
 logger = logging.getLogger(__name__)
 
 # Optional logfire tracing (Presentation Slide 19: Tracing and Debugging)
