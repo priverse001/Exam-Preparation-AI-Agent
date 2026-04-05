@@ -53,7 +53,7 @@ This repo is intentionally scaffolded but not fully implemented yet. It is desig
 ## Quick Start
 
 ```bash
-cp .env.template .env
+./workshop/init_env.sh
 uv sync
 npm install
 npm run start
@@ -405,7 +405,7 @@ echo "  $TARGET_DIR"
 echo
 echo "Next steps:"
 echo "  cd \"$TARGET_DIR\""
-echo "  cp .env.template .env"
+echo "  ./workshop/init_env.sh"
 echo "  uv sync"
 echo "  npm install"
 echo "  git status"
