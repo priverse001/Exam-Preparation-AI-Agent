@@ -6,8 +6,13 @@ import { defineConfig } from "@playwright/test";
  * Usage:
  *   npx playwright test              # headless (CI)
  *   npx playwright test --headed     # headful (demo / local dev)
+ *   npx playwright test --ui         # interactive Playwright UI
  *
  * The app (npm run start) must already be running on ports 5173 + 8002.
+ *
+ * Execution order:
+ *   1. "setup"  — health check, delete all docs/notes, upload 5 sample docs
+ *   2. "tests"  — all other specs (depends on setup completing first)
  */
 export default defineConfig({
   testDir: "./e2e",
@@ -25,8 +30,13 @@ export default defineConfig({
   },
   projects: [
     {
-      name: "chromium",
-      use: { browserName: "chromium" },
+      name: "setup",
+      testMatch: "setup.spec.ts",
+    },
+    {
+      name: "tests",
+      testIgnore: "setup.spec.ts",
+      dependencies: ["setup"],
     },
   ],
 });
