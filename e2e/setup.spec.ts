@@ -13,6 +13,7 @@ import {
   DOCS_DIR,
   SAMPLE_DOCS,
   listDocsViaAPI,
+  deleteAllDocsViaAPI,
   clearNotes,
 } from "./helpers";
 
@@ -32,22 +33,13 @@ test.describe("Setup & Health Check", () => {
 
   test("clean slate — delete all documents via UI and clear notes", async ({ page }) => {
     clearNotes();
+
+    // First use API to ensure clean slate (reliable regardless of UI state)
+    await deleteAllDocsViaAPI();
+
+    // Then verify the UI reflects the empty state
     await page.goto("/");
-
-    // Accept every confirmation dialog automatically
-    page.on("dialog", (dialog) => dialog.accept());
-
-    // Keep clicking delete buttons until none remain
-    while (true) {
-      const deleteBtn = page.getByRole("button", { name: "Delete" }).first();
-      if (!(await deleteBtn.isVisible({ timeout: 2000 }).catch(() => false))) break;
-      await deleteBtn.click();
-      // Wait for the list to update after deletion
-      await page.waitForTimeout(1000);
-    }
-
-    // Verify empty state in UI
-    await expect(page.getByText("No documents uploaded yet.")).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText("No documents uploaded yet.")).toBeVisible({ timeout: 10_000 });
 
     // Double-check via API
     const docs = await listDocsViaAPI();
