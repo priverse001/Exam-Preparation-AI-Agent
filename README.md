@@ -2,6 +2,18 @@
 
 An AI-powered study assistant that lets students upload course materials and chat with an intelligent multi-agent system. Built as a teaching demo for the **"Building AI Agents: From LLMs to Multi-Agent Systems"** workshop at BHU.
 
+## Who Should Read What
+
+If you are a student or workshop participant:
+- start with `README.md`
+- then follow `setup/SETUP_GUIDE.md`
+
+If you are conducting the workshop:
+- use `resources/DEMO_PLAYBOOK.md` as the instructor runbook
+- use `resources/AGENTS_PRESENTATION.md` for slides
+- use `resources/code_examples/` as the progressive teaching examples
+- use `resources/documents/` as sample upload files for demos and testing
+
 ## What's Inside
 
 - **FastAPI backend** with a multi-agent pipeline (Triage → CourseMaterial / RevisionNotes) powered by the OpenAI Agents SDK.
@@ -39,6 +51,14 @@ An AI-powered study assistant that lets students upload course materials and cha
 
 The devcontainer gives you a fully configured environment with Python 3.11, Node.js 22, and `uv` pre-installed. It works identically on **Windows, macOS, and Linux**.
 
+Recommended editors for the workshop:
+- `VS Code` + Dev Containers
+- `Cursor` + Dev Containers
+- `PyCharm` + Dev Containers
+
+Also supported:
+- any editor using the generic local setup path in `setup/SETUP_GUIDE.md`
+
 ### Step 0: Install prerequisites on your machine
 
 You need only two things installed on your host OS — everything else runs inside the container.
@@ -46,8 +66,8 @@ You need only two things installed on your host OS — everything else runs insi
 | Software | Why | Install |
 |----------|-----|---------|
 | **Docker Desktop** | Runs the devcontainer | [docker.com/get-started](https://www.docker.com/get-started/) — Windows/macOS/Linux. On Windows, enable **WSL 2 backend** during setup. |
-| **VS Code** | IDE with devcontainer support | [code.visualstudio.com](https://code.visualstudio.com/) |
-| **Dev Containers extension** | Opens the project inside Docker | Open VS Code → Extensions (`Ctrl+Shift+X`) → search **"Dev Containers"** → Install ([ms-vscode-remote.remote-containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)) |
+| **VS Code or Cursor** | Recommended editor for the workshop | [code.visualstudio.com](https://code.visualstudio.com/) or [cursor.com](https://www.cursor.com/) |
+| **Dev Containers extension** | Opens the project inside Docker | In VS Code or Cursor, install the Dev Containers extension (`ms-vscode-remote.remote-containers`) |
 
 > **Windows users**: Make sure Docker Desktop is running with the WSL 2 backend (Settings → General → "Use the WSL 2 based engine"). This is required for the Linux container to work.
 
@@ -55,13 +75,23 @@ You need only two things installed on your host OS — everything else runs insi
 
 ### Step 1: Clone and open
 
+If you use `VS Code`:
+
 ```bash
 git clone https://github.com/regalmoix/Exam-Preparation-AI-Agent.git -b bhu
 cd Exam-Preparation-AI-Agent
 code .
 ```
 
-When VS Code opens, you'll see a prompt:
+If you use `Cursor`:
+
+```bash
+git clone https://github.com/regalmoix/Exam-Preparation-AI-Agent.git -b bhu
+cd Exam-Preparation-AI-Agent
+cursor .
+```
+
+When the editor opens, you'll see a prompt:
 
 > **"Reopen in Container"** — click it.
 
@@ -71,7 +101,7 @@ The first build takes 2-3 minutes (downloads the Docker image, installs Node.js 
 
 ### Optional: Generate a local scaffold branch
 
-The `bhu` branch is the canonical full solution. If you want students to work through checkpoint exercises, generate a local scaffold branch with the solutions stripped:
+The `bhu` branch is the canonical full solution. If you want students to work through checkpoint exercises, generate a local scaffold branch that starts fully working:
 
 ```bash
 ./workshop/create_scaffold_branch.sh
@@ -79,7 +109,7 @@ git switch workshop-scaffold
 ./workshop/workshop.sh status
 ```
 
-This creates a local branch that is effectively `bhu + one scaffold commit`. The workshop script can then restore checkpoints from the recorded solution commit with:
+This creates a local branch that is effectively `bhu + one local workshop commit`. Students can run the app end-to-end immediately, then strip one checkpoint at a time during the workshop. The workshop script restores checkpoints from the recorded solution commit with:
 
 ```bash
 ./workshop/workshop.sh solve 1
@@ -127,7 +157,7 @@ Navigate to **http://localhost:5173** on your host machine (ports are auto-forwa
 
 ## Alternative: Local Setup (Without Devcontainer)
 
-If you prefer running directly on your machine without Docker:
+If you prefer running directly on your machine without Docker, follow this path.
 
 ### Prerequisites
 
@@ -154,6 +184,8 @@ npm run start
 ```
 
 Open **http://localhost:5173**.
+
+For full step-by-step instructions, including Windows/WSL notes, IDE-specific devcontainer setup, and a generic local fallback, see `setup/SETUP_GUIDE.md`.
 
 ---
 

@@ -114,147 +114,219 @@ Open two windows side by side:
 
 ## Hands-On Checkpoints Guide (for instructor)
 
-### Setup (tell students)
+### Student Setup Instructions
+
+Tell students to use the devcontainer if possible. VS Code, Cursor, and PyCharm all support that path. If someone does not want to use a devcontainer, the generic local setup path is also fine.
+
+Student setup commands:
 
 ```bash
-# Students clone the scaffold branch
-git clone https://github.com/regalmoix/Exam-Preparation-AI-Agent.git -b scaffold
+git clone https://github.com/regalmoix/Exam-Preparation-AI-Agent.git -b bhu
 cd Exam-Preparation-AI-Agent
 
-# Open in devcontainer (or set up locally)
-# Configure .env with API key
+# Open in devcontainer if using VS Code or Cursor.
+# Then in the terminal:
 cp .env.template .env
-# Edit .env → add OPENAI_API_KEY
+# Edit .env and add OPENAI_API_KEY
 
-# Start the app (everything works — it's the golden solution)
+# Start the full working app
 npm run start
+```
 
-# Check checkpoint status
+If you want students to use the checkpoint workflow, tell them to create a local workshop branch after the app is running:
+
+```bash
+./workshop/create_scaffold_branch.sh
+git switch workshop-scaffold
 ./workshop/workshop.sh status
 ```
 
-### Running Checkpoints
+Important:
+- the branch starts fully working
+- students can run the app end-to-end before any exercise is stripped
+- only one checkpoint can be active at a time
+- students must run `solve N` before moving to the next checkpoint
 
-Before each checkpoint, the instructor says:
+### Running Checkpoints In Class
 
-> "Now let's implement this ourselves. Run `./workshop/workshop.sh checkpoint N` to strip the code for this exercise."
+Before each checkpoint, say:
 
-After ~10 minutes, if students are stuck:
+> "Keep `npm run start` running. Your app should still work except for the one concept we are about to strip. Now run `./workshop/workshop.sh checkpoint N`."
 
-> "If you need help, run `./workshop/workshop.sh solve N` to see the solution and move on."
+After students strip a checkpoint:
+- tell them to read the `# TODO:` comments
+- tell them to use the file list printed by the script
+- let them test immediately in the running app
 
-### Checkpoint 1: Implement a Tool (~10 min)
+If students get stuck, say:
 
-**Slide context**: After Slides 7-8 (Tools / Function Calling)
+> "Run `./workshop/workshop.sh solve N` to restore the golden implementation. Then verify the app works again before moving on."
+
+### Checkpoint 1: Implement a Tool (~10-15 min)
+
+**Teach first**:
+- Slides 2-8
+- Show `resources/code_examples/1_basic_chat.py`
+- Show `resources/code_examples/2_multiturn_conversation.py`
+- Show `resources/code_examples/3_tools.py`
+
+**Then checkpoint**:
 
 ```bash
 ./workshop/workshop.sh checkpoint 1
 ```
 
-**What's stripped**: `search_uploaded_materials` function body in `tools.py`
+**Files students edit**:
+- `backend/app/agents_sdk/tools.py`
 
-**What students write**:
-```python
-results: list[SearchResult] = retrieval.search(query, top_k=5)
-if not results:
-    return "No relevant content found in the uploaded materials."
-parts: list[str] = []
-for r in results:
-    parts.append(f"[Source: {r.filename} | {r.section_label}]\n{r.text}\n")
-return "\n---\n".join(parts)
-```
+**What students implement**:
+- the `search_uploaded_materials` tool body
 
-**Test**: Upload a document, ask about its content → should get cited answer.
+**How students test**:
+1. Upload `resources/documents/CPU.md`
+2. Ask a content question
+3. Confirm the answer includes citations
 
-### Checkpoint 2: Define Agent + Wire Handoffs (~10 min)
+### Checkpoint 2: Define Agent + Wire Handoffs (~10-15 min)
 
-**Slide context**: After Slides 14-16 (Multi-Agent Systems)
+**Teach first**:
+- Slides 11-16
+- Show `resources/code_examples/5_realworld_agent.py`
+- Show `resources/code_examples/7_complete_study_system.py`
+- Briefly map those examples to `backend/app/agents_sdk/agents.py`
+
+**Then checkpoint**:
 
 ```bash
+./workshop/workshop.sh solve 1
 ./workshop/workshop.sh checkpoint 2
 ```
 
-**What's stripped**: `course_material_agent = Agent(...)` and `handoffs=[...]` in `agents.py`
+**Files students edit**:
+- `backend/app/agents_sdk/agents.py`
 
-**What students write**:
-```python
-# Exercise 5
-course_material_agent = Agent(
-    name="CourseMaterialAgent",
-    instructions=COURSE_MATERIAL_AGENT_PROMPT,
-    model=OPENAI_DEFAULT_MODEL,
-    tools=[search_uploaded_materials, list_uploaded_materials, generate_topic_summary],
-)
+**What students implement**:
+- `course_material_agent = Agent(...)`
+- `handoffs=[course_material_agent, revision_notes_agent]`
 
-# Exercise 6 (inside triage_agent)
-handoffs=[course_material_agent, revision_notes_agent],
-```
+**How students test**:
+1. Ask a normal greeting and show no handoff
+2. Ask a course-content question and show the handoff to `CourseMaterialAgent`
 
-**Test**: Ask a content question → should see handoff in terminal.
+### Checkpoint 3: Structured Output + Prompt Engineering (~15-20 min)
 
-### Checkpoint 3: Structured Output + Prompt Engineering (~10 min)
+**Teach first**:
+- Slides 9 and 22
+- Show `resources/code_examples/4_structured_output.py`
+- Compare `TRIAGE_AGENT_PROMPT` and `REVISION_NOTES_AGENT_PROMPT`
+- Explain why prompt structure matters before students write their own prompt
 
-**Slide context**: After Slides 9 + 22 (Structured Outputs + Prompting Best Practices)
+**Then checkpoint**:
 
 ```bash
+./workshop/workshop.sh solve 2
 ./workshop/workshop.sh checkpoint 3
 ```
 
-**What's stripped**: `TopicSummary` fields, `generate_topic_summary` return, and `COURSE_MATERIAL_AGENT_PROMPT`
+**Files students edit**:
+- `backend/app/agents_sdk/tools.py`
+- `backend/app/agents_sdk/prompts.py`
 
-**What students write**: Pydantic fields, tool return, and a structured prompt with ## Workflow and ## Rules sections. They have `TRIAGE_AGENT_PROMPT` and `REVISION_NOTES_AGENT_PROMPT` as reference.
+**What students implement**:
+- `TopicSummary` fields
+- `generate_topic_summary` fallback return
+- `COURSE_MATERIAL_AGENT_PROMPT`
 
-**Test**: Ask for a topic summary → should get structured response.
+**How students test**:
+1. Ask for a topic summary
+2. Check that the answer is structured and grounded
+3. Check that the agent behavior improves after the prompt is restored
 
-### Checkpoint 4: MCP Integration (~10 min)
+### Checkpoint 4: MCP Integration (~10-15 min)
 
-**Slide context**: After Slides 23-25 (MCP)
+**Teach first**:
+- Slides 23-25
+- Show `resources/code_examples/8_mcp.py`
+- Explain that this checkpoint gives the notes agent write access to `workshop_notes/`
+
+**Then checkpoint**:
 
 ```bash
+./workshop/workshop.sh solve 3
 ./workshop/workshop.sh checkpoint 4
 ```
 
-**What's stripped**: `MCPServerStdio` config and `connect_mcp` body in `mcp.py`
+**Files students edit**:
+- `backend/app/agents_sdk/mcp.py`
 
-**What students write**:
-```python
-# 7a
-filesystem_mcp_server = MCPServerStdio(
-    name="filesystem",
-    params={
-        "command": "npx",
-        "args": ["-y", "@modelcontextprotocol/server-filesystem",
-                 str(APP_NOTES_DIR.resolve())],
-    },
-)
+**What students implement**:
+- filesystem `MCPServerStdio` config
+- MCP connection logic
 
-# 7b
-try:
-    if filesystem_mcp_server.session is None:
-        await filesystem_mcp_server.connect()
-        revision_notes_agent.mcp_servers = [filesystem_mcp_server]
-        available_tools = await filesystem_mcp_server.list_tools()
-        logger.info(f"MCP connected. Tools: {[t.name for t in available_tools]}")
-except Exception as e:
-    logger.error(f"Failed to connect MCP: {e}")
-    await filesystem_mcp_server.cleanup()
-```
-
-**Test**: Ask to create revision notes → check `workshop_notes/` folder.
+**How students test**:
+1. Ask the app to create revision notes
+2. Confirm a file appears in `workshop_notes/`
+3. If the first attempt fails, retry once because MCP can be slow on cold start
 
 ---
 
-## Suggested 2.5-Hour Timeline
+## Suggested Workshop Runbook (2.5-3 Hours)
+
+This sequencing works well because students always start with a fully working app, and each checkpoint removes only one concept at a time.
+
+### Recommended Flow
+
+1. Let students get the app running first.
+2. Show the working system end-to-end before teaching internals.
+3. Teach one concept cluster.
+4. Strip exactly one checkpoint.
+5. Let students implement and test in the real app.
+6. Restore with `solve N` before moving to the next checkpoint.
+
+### 2.5-Hour Version
 
 | Time | Duration | Activity |
 |------|----------|----------|
-| 0:00 | 30 min | Slides 1-7: LLM → Chat API → Agents → Tools |
-| 0:30 | 10 min | **Checkpoint 1**: Implement search tool |
-| 0:40 | 25 min | Slides 8-16: Code examples → Multi-agent → Handoffs |
-| 1:05 | 10 min | **Checkpoint 2**: Agent + Handoffs |
-| 1:15 | 15 min | Slides 9, 22: Structured Outputs + Prompting Best Practices |
-| 1:30 | 10 min | **Checkpoint 3**: Structured output + Prompt |
-| 1:40 | 10 min | Break |
-| 1:50 | 15 min | Slides 20-25: RAG + MCP |
-| 2:05 | 10 min | **Checkpoint 4**: MCP integration |
-| 2:15 | 15 min | Q&A + Wrap-up |
+| 0:00 | 15 min | Setup verification: Docker running, editor open, `.env` configured, app started |
+| 0:15 | 10 min | Live product demo: upload doc, ask question, save revision notes |
+| 0:25 | 20 min | Slides 1-8: LLMs, chat, agents, tools |
+| 0:45 | 15 min | Show code examples `1_basic_chat.py`, `2_multiturn_conversation.py`, `3_tools.py` |
+| 1:00 | 15 min | Checkpoint 1 |
+| 1:15 | 20 min | Slides 11-16: Agents SDK, multi-agent systems, handoffs |
+| 1:35 | 10 min | Show code examples `5_realworld_agent.py` and `7_complete_study_system.py` |
+| 1:45 | 15 min | Checkpoint 2 |
+| 2:00 | 10 min | Break |
+| 2:10 | 10 min | Slides 9 and 22: structured outputs and prompting |
+| 2:20 | 15 min | Checkpoint 3 |
+| 2:35 | 10 min | Slides 23-25: MCP |
+| 2:45 | 10 min | Checkpoint 4 |
+| 2:55 | 5 min | Wrap-up and Q&A |
+
+### 3-Hour Version
+
+Use this if you want a slower pace and more student coding time.
+
+| Time | Duration | Activity |
+|------|----------|----------|
+| 0:00 | 20 min | Setup verification and app bring-up |
+| 0:20 | 10 min | Live demo of the finished app |
+| 0:30 | 25 min | Slides 1-8 + short discussion |
+| 0:55 | 15 min | Code examples `1_basic_chat.py`, `2_multiturn_conversation.py`, `3_tools.py` |
+| 1:10 | 15 min | Checkpoint 1 |
+| 1:25 | 20 min | Slides 11-16 |
+| 1:45 | 10 min | Code examples `5_realworld_agent.py`, `7_complete_study_system.py` |
+| 1:55 | 15 min | Checkpoint 2 |
+| 2:10 | 10 min | Break |
+| 2:20 | 15 min | Slides 9 and 22 + prompt-writing discussion |
+| 2:35 | 20 min | Checkpoint 3 |
+| 2:55 | 10 min | Slides 23-25 + `8_mcp.py` |
+| 3:05 | 15 min | Checkpoint 4 |
+| 3:20 | 10 min | Final demo, recap, and Q&A |
+
+### Teaching Tips
+
+- Keep `npm run start` visible in one terminal during demos so students can see handoffs and tool calls.
+- Ask students to upload `resources/documents/CPU.md` first so everyone tests against the same document.
+- After each checkpoint, tell students to verify the app from the browser, not just from reading code.
+- Avoid moving to the next checkpoint until most students have either solved the current one or restored it with `solve N`.
+- If setup is taking too long, have students pair up so the workshop stays on schedule.

@@ -10,4 +10,5 @@
     #
     # Reference: resources/code_examples/3_tools.py
     # ================================================================
+    # TODO: Implement the retrieval + formatting logic.
     return "No relevant content found in the uploaded materials."  # placeholder

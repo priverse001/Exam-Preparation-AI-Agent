@@ -10,4 +10,5 @@
     # Reference: resources/code_examples/4_structured_output.py
     # Reference: resources/code_examples/5_realworld_agent.py
     # ================================================================
+    # TODO: Return a TopicSummary fallback object here.
     pass  # replace with: return TopicSummary(...)

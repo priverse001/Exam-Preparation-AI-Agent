@@ -11,6 +11,7 @@
     #
     # Reference: resources/code_examples/8_mcp.py
     # ================================================================
+    # TODO: Finish the MCP connection flow and attach the server to the agent.
     if filesystem_mcp_server is None:
         logger.warning("MCP server not configured (Exercise 7a)")
         return

@@ -7,4 +7,5 @@
     # This tells the triage agent it can delegate to these specialists.
     # Reference: resources/code_examples/7_complete_study_system.py
     # ================================================================
+    # TODO: Add both specialist agents to this handoffs list.
     handoffs=[],  # add the agent references here

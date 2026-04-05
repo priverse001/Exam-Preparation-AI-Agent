@@ -10,4 +10,5 @@
     # Hint: Use Field(description="...") for each field.
     # Reference: resources/code_examples/4_structured_output.py
     # ================================================================
+    # TODO: Replace this placeholder with the 4 TopicSummary fields.
     pass

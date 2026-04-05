@@ -70,6 +70,13 @@ get_checkpoint_name() {
     echo "Checkpoint $cp"
 }
 
+get_checkpoint_files() {
+    local cp="$1"
+    while IFS= read -r entry; do
+        echo "$(echo "$entry" | cut -d: -f3)"
+    done < <(get_checkpoint_entries "$cp")
+}
+
 extract_golden_block() {
     local file="$1" marker="$2"
     local start_pat="# >>> ${marker}_START"
@@ -153,6 +160,26 @@ is_checkpoint_golden() {
     return 0
 }
 
+get_active_checkpoint() {
+    local cp
+    for cp in 1 2 3 4; do
+        if ! is_checkpoint_golden "$cp"; then
+            echo "$cp"
+            return 0
+        fi
+    done
+    return 1
+}
+
+print_checkpoint_files() {
+    local cp="$1"
+    echo "   Files to edit:"
+    while IFS= read -r rel_path; do
+        [[ -z "$rel_path" ]] && continue
+        echo "   - $rel_path"
+    done < <(get_checkpoint_files "$cp")
+}
+
 # ---- Commands --------------------------------------------------------------
 
 cmd_checkpoint() {
@@ -161,6 +188,7 @@ cmd_checkpoint() {
     name=$(get_checkpoint_name "$cp")
     local entries
     entries=$(get_checkpoint_entries "$cp")
+    local active_cp
 
     if [[ -z "$entries" ]]; then
         echo "Error: Checkpoint '$cp' not found. Valid: 1, 2, 3, 4" >&2
@@ -169,6 +197,14 @@ cmd_checkpoint() {
     if ! is_checkpoint_golden "$cp"; then
         echo "Checkpoint $cp is already stripped."
         echo "Use './workshop/workshop.sh solve $cp' to restore first."
+        exit 1
+    fi
+    if active_cp="$(get_active_checkpoint)"; then
+        echo "Checkpoint $active_cp is currently active."
+        echo "Solve it before stripping another checkpoint:"
+        echo "  ./workshop/workshop.sh solve $active_cp"
+        echo ""
+        print_checkpoint_files "$active_cp"
         exit 1
     fi
 
@@ -183,6 +219,8 @@ cmd_checkpoint() {
     echo ""
     echo "✏️  Checkpoint $cp: $name"
     echo "   Status: STRIPPED — implement the TODOs and test!"
+    echo ""
+    print_checkpoint_files "$cp"
     echo ""
     echo "   To restore: ./workshop/workshop.sh solve $cp"
 }
@@ -215,6 +253,7 @@ cmd_solve() {
     done <<< "$entries"
 
     echo "✅ Checkpoint $cp: $name — RESTORED"
+    echo "   All files for this checkpoint are back to the recorded solution."
 }
 
 cmd_reset() {
@@ -232,6 +271,13 @@ cmd_reset() {
 }
 
 cmd_status() {
+    local active_cp=""
+    if active_cp="$(get_active_checkpoint)"; then
+        :
+    else
+        active_cp=""
+    fi
+
     echo ""
     echo "┌──────┬───────────┬────────────────────────────────────────────────┐"
     echo "│  CP  │  Status   │  Name                                          │"
@@ -254,6 +300,15 @@ cmd_status() {
     echo "  ./workshop/workshop.sh reset          Restore all to golden"
     echo "  ./workshop/create_scaffold_branch.sh  Create a local scaffold branch"
     echo ""
+    if [[ -n "$active_cp" ]]; then
+        echo "Active checkpoint: $active_cp ($(get_checkpoint_name "$active_cp"))"
+        print_checkpoint_files "$active_cp"
+        echo ""
+    else
+        echo "Active checkpoint: none"
+        echo "Use './workshop/workshop.sh checkpoint N' to strip exactly one exercise."
+        echo ""
+    fi
 }
 
 # ---- Main ------------------------------------------------------------------

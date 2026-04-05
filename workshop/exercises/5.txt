@@ -9,4 +9,5 @@
 #
 # Reference: resources/code_examples/5_realworld_agent.py
 # ====================================================================
+# TODO: Replace this placeholder with the real Agent(...) definition.
 course_material_agent = None  # replace with Agent(...)

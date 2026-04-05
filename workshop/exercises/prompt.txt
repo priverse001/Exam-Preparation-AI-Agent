@@ -19,6 +19,7 @@
 #
 # Reference: resources/AGENTS_PRESENTATION.md (Slides 22-23: Prompting Best Practices)
 # ================================================================
+# TODO: Replace this placeholder prompt with a full course-material agent prompt.
 COURSE_MATERIAL_AGENT_PROMPT = """\
 You are a helpful study assistant. Answer questions based on uploaded materials.
 """
