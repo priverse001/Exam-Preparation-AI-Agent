@@ -1,0 +1,13 @@
+    # ================================================================
+    # EXERCISE 2: Function Tool — Search  (Easy, ~10 min)
+    # ================================================================
+    # Implement the search tool body:
+    #   1. Call retrieval.search(query, top_k=5) to get a list of SearchResult
+    #   2. If no results, return "No relevant content found in the uploaded materials."
+    #   3. For each result r, format as:
+    #      "[Source: {r.filename} | {r.section_label}]\n{r.text}\n"
+    #   4. Join all parts with "\n---\n" and return
+    #
+    # Reference: resources/code_examples/3_tools.py
+    # ================================================================
+    return "No relevant content found in the uploaded materials."  # placeholder

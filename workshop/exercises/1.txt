@@ -1,0 +1,13 @@
+    # ================================================================
+    # EXERCISE 1: Structured Outputs  (Easy, ~5 min)
+    # ================================================================
+    # Define 4 Pydantic fields for this structured output model:
+    #   - topic (str): "The main topic being summarized"
+    #   - key_concepts (list[str]): "3-5 key concepts or terms"
+    #   - summary (str): "A concise 2-3 sentence summary"
+    #   - difficulty_level (str): "beginner, intermediate, or advanced"
+    #
+    # Hint: Use Field(description="...") for each field.
+    # Reference: resources/code_examples/4_structured_output.py
+    # ================================================================
+    pass

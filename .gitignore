@@ -14,3 +14,4 @@ __pycache__/
 data/
 workshop_notes/
 .playwright-mcp/
+workshop/.golden/

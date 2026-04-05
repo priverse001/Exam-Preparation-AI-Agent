@@ -69,6 +69,23 @@ Or manually: `Ctrl+Shift+P` (or `Cmd+Shift+P` on macOS) → type **"Dev Containe
 
 The first build takes 2-3 minutes (downloads the Docker image, installs Node.js 22, `uv`, and all project dependencies). Subsequent opens are instant.
 
+### Optional: Generate a local scaffold branch
+
+The `bhu` branch is the canonical full solution. If you want students to work through checkpoint exercises, generate a local scaffold branch with the solutions stripped:
+
+```bash
+./workshop/create_scaffold_branch.sh
+git switch workshop-scaffold
+./workshop/workshop.sh status
+```
+
+This creates a local branch that is effectively `bhu + one scaffold commit`. The workshop script can then restore checkpoints from the recorded solution commit with:
+
+```bash
+./workshop/workshop.sh solve 1
+./workshop/workshop.sh reset
+```
+
 ### Step 2: Configure your API key
 
 Inside the container terminal (which opens automatically):
@@ -124,6 +141,10 @@ If you prefer running directly on your machine without Docker:
 ```bash
 git clone https://github.com/regalmoix/Exam-Preparation-AI-Agent.git -b bhu
 cd Exam-Preparation-AI-Agent
+
+# Optional: generate a local scaffold branch for the exercises
+# ./workshop/create_scaffold_branch.sh
+# git switch workshop-scaffold
 
 cp .env.template .env
 # Edit .env → add OPENAI_API_KEY

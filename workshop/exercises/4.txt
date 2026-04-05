@@ -1,0 +1,13 @@
+    # ================================================================
+    # EXERCISE 4: Structured Output from a Tool  (Easy, ~5 min)
+    # ================================================================
+    # Return a TopicSummary(...) object with these fields:
+    #   - topic: use the topic parameter
+    #   - key_concepts: a list containing just [topic] as a fallback
+    #   - summary: content[:200] if len(content) > 200 else content
+    #   - difficulty_level: "intermediate"
+    #
+    # Reference: resources/code_examples/4_structured_output.py
+    # Reference: resources/code_examples/5_realworld_agent.py
+    # ================================================================
+    pass  # replace with: return TopicSummary(...)

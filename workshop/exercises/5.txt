@@ -1,0 +1,12 @@
+# ====================================================================
+# EXERCISE 5: Define an Agent with Tools  (Easy-Medium, ~5 min)
+# ====================================================================
+# Create the course_material_agent using Agent():
+#   - name: "CourseMaterialAgent"
+#   - instructions: COURSE_MATERIAL_AGENT_PROMPT
+#   - model: OPENAI_DEFAULT_MODEL
+#   - tools: [search_uploaded_materials, list_uploaded_materials, generate_topic_summary]
+#
+# Reference: resources/code_examples/5_realworld_agent.py
+# ====================================================================
+course_material_agent = None  # replace with Agent(...)

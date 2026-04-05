@@ -1,0 +1,10 @@
+    # ================================================================
+    # EXERCISE 6: Multi-Agent Handoffs  (Medium, ~5 min)
+    # ================================================================
+    # Add the two specialist agents to the handoffs list:
+    #   handoffs=[course_material_agent, revision_notes_agent]
+    #
+    # This tells the triage agent it can delegate to these specialists.
+    # Reference: resources/code_examples/7_complete_study_system.py
+    # ================================================================
+    handoffs=[],  # add the agent references here

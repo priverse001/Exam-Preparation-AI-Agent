@@ -1,0 +1,17 @@
+# ====================================================================
+# EXERCISE 7a: MCP Server Configuration  (Medium, ~10 min)
+# ====================================================================
+# Create an MCPServerStdio instance for filesystem access:
+#   filesystem_mcp_server = MCPServerStdio(
+#       name="filesystem",
+#       params={
+#           "command": "npx",
+#           "args": ["-y", "@modelcontextprotocol/server-filesystem",
+#                    str(APP_NOTES_DIR.resolve())],
+#       },
+#   )
+#
+# This lets the revision notes agent read/write files in the notes dir.
+# Reference: resources/code_examples/8_mcp.py
+# ====================================================================
+filesystem_mcp_server = None  # replace with MCPServerStdio(...)

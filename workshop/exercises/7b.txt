@@ -1,0 +1,16 @@
+    # ================================================================
+    # EXERCISE 7b: MCP Connection Logic
+    # ================================================================
+    # Implement the connection:
+    #   1. If filesystem_mcp_server is None, log warning and return
+    #   2. If filesystem_mcp_server.session is None (not connected):
+    #      a. await filesystem_mcp_server.connect()
+    #      b. revision_notes_agent.mcp_servers = [filesystem_mcp_server]
+    #      c. List tools: await filesystem_mcp_server.list_tools()
+    #   3. Wrap in try/except; on error call filesystem_mcp_server.cleanup()
+    #
+    # Reference: resources/code_examples/8_mcp.py
+    # ================================================================
+    if filesystem_mcp_server is None:
+        logger.warning("MCP server not configured (Exercise 7a)")
+        return

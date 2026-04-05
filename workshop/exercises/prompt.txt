@@ -1,0 +1,24 @@
+# ================================================================
+# EXERCISE: Write the CourseMaterialAgent Prompt  (~5 min)
+# ================================================================
+# Write a system prompt for the CourseMaterialAgent.
+# Look at TRIAGE_AGENT_PROMPT and REVISION_NOTES_AGENT_PROMPT below
+# for reference on style and structure.
+#
+# Your prompt should include:
+#   ## Workflow
+#   - Tell the agent to ALWAYS call search_uploaded_materials first
+#   - Tell it to call list_uploaded_materials when needed
+#   - Tell it to call generate_topic_summary for topic summaries
+#   - Tell it to synthesize and CITE sources: *[Source: filename | section]*
+#
+#   ## Rules
+#   - ONLY answer from uploaded materials, NEVER hallucinate
+#   - Handle empty search results gracefully
+#   - Explain clearly, use bullet points and examples
+#
+# Reference: resources/AGENTS_PRESENTATION.md (Slides 22-23: Prompting Best Practices)
+# ================================================================
+COURSE_MATERIAL_AGENT_PROMPT = """\
+You are a helpful study assistant. Answer questions based on uploaded materials.
+"""
