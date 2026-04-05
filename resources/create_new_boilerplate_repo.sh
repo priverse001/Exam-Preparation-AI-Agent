@@ -54,8 +54,7 @@ This repo is intentionally scaffolded but not fully implemented yet. It is desig
 
 ```bash
 ./workshop/init_env.sh
-uv sync
-npm install
+npm run setup
 npm run start
 ```
 EOF
@@ -131,12 +130,10 @@ cat > "$TARGET_DIR/package.json" <<'EOF'
   "name": "study-assistant-ai-boilerplate",
   "private": true,
   "scripts": {
-    "start": "concurrently --kill-others-on-fail --names backend,frontend \"npm run backend\" \"npm run frontend\"",
-    "frontend": "npm --prefix frontend install && npm --prefix frontend run dev -- --host 0.0.0.0 --port 5173",
+    "setup": "npm install && npm --prefix frontend install && uv sync",
+    "start": "node workshop/start.mjs",
+    "frontend": "npm --prefix frontend run dev -- --host 0.0.0.0 --port 5173",
     "backend": "uv sync && uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8002"
-  },
-  "devDependencies": {
-    "concurrently": "^9.1.2"
   }
 }
 EOF
@@ -184,11 +181,12 @@ services:
     environment:
       CHOKIDAR_USEPOLLING: "true"
       WATCHPACK_POLLING: "true"
+      UV_CACHE_DIR: "/home/vscode/.cache/uv"
     volumes:
       - .:/workspace
       - root_node_modules:/workspace/node_modules
       - frontend_node_modules:/workspace/frontend/node_modules
-      - uv_cache:/root/.cache/uv
+      - uv_cache:/home/vscode/.cache/uv
 
 volumes:
   root_node_modules:
@@ -202,9 +200,11 @@ cat > "$TARGET_DIR/.devcontainer/devcontainer.json" <<'EOF'
   "dockerComposeFile": "../docker-compose.yml",
   "service": "app",
   "workspaceFolder": "/workspace",
+  "remoteUser": "vscode",
   "shutdownAction": "stopCompose",
   "forwardPorts": [5173, 8002],
-  "postCreateCommand": "npm install && npm --prefix frontend install && uv sync",
+  "postCreateCommand": "bash ./workshop/bootstrap_workspace.sh && npm run setup",
+  "postStartCommand": "bash ./workshop/bootstrap_workspace.sh",
   "customizations": {
     "vscode": {
       "settings": {
@@ -396,6 +396,114 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
 );
 EOF
 
+cat > "$TARGET_DIR/workshop/bootstrap_workspace.sh" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+UV_CACHE_DIR="${UV_CACHE_DIR:-$HOME/.cache/uv}"
+
+ensure_writable_dir() {
+    local dir="$1"
+
+    mkdir -p "$dir"
+
+    if [[ -w "$dir" ]]; then
+        return 0
+    fi
+
+    if command -v sudo >/dev/null 2>&1; then
+        sudo chown -R "$(id -u):$(id -g)" "$dir"
+    else
+        chown -R "$(id -u):$(id -g)" "$dir" 2>/dev/null || true
+    fi
+
+    if [[ ! -w "$dir" ]]; then
+        echo "Directory is not writable: $dir" >&2
+        exit 1
+    fi
+}
+
+ensure_writable_dir "$PROJECT_DIR/node_modules"
+ensure_writable_dir "$PROJECT_DIR/frontend/node_modules"
+ensure_writable_dir "$UV_CACHE_DIR"
+EOF
+
+cat > "$TARGET_DIR/workshop/start.mjs" <<'EOF'
+import { spawn } from "node:child_process";
+
+const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
+
+function prefixStream(stream, label) {
+  let buffer = "";
+
+  stream.on("data", (chunk) => {
+    buffer += chunk.toString();
+    const lines = buffer.split("\n");
+    buffer = lines.pop() ?? "";
+
+    for (const line of lines) {
+      process.stdout.write(`[${label}] ${line}\n`);
+    }
+  });
+
+  stream.on("end", () => {
+    if (buffer.length > 0) {
+      process.stdout.write(`[${label}] ${buffer}\n`);
+    }
+  });
+}
+
+function startProcess(label, script) {
+  const child = spawn(npmCommand, ["run", script], {
+    stdio: ["inherit", "pipe", "pipe"],
+    env: process.env,
+  });
+
+  prefixStream(child.stdout, label);
+  prefixStream(child.stderr, label);
+  return child;
+}
+
+const children = [
+  { label: "backend", child: startProcess("backend", "backend") },
+  { label: "frontend", child: startProcess("frontend", "frontend") },
+];
+
+let shuttingDown = false;
+
+function stopChildren(signal = "SIGTERM") {
+  if (shuttingDown) return;
+  shuttingDown = true;
+
+  for (const { child } of children) {
+    if (!child.killed) {
+      child.kill(signal);
+    }
+  }
+}
+
+for (const { label, child } of children) {
+  child.on("exit", (code, signal) => {
+    if (!shuttingDown) {
+      stopChildren();
+      if (signal) {
+        console.error(`[${label}] exited due to signal ${signal}`);
+        process.exit(1);
+      }
+      process.exit(code ?? 1);
+    }
+  });
+}
+
+for (const signal of ["SIGINT", "SIGTERM"]) {
+  process.on(signal, () => {
+    stopChildren(signal);
+    process.exit(0);
+  });
+}
+EOF
+
 git -C "$TARGET_DIR" init
 git -C "$TARGET_DIR" branch -m main
 
@@ -406,6 +514,6 @@ echo
 echo "Next steps:"
 echo "  cd \"$TARGET_DIR\""
 echo "  ./workshop/init_env.sh"
-echo "  uv sync"
-echo "  npm install"
+echo "  npm run setup"
+echo "  npm run start"
 echo "  git status"

@@ -5,6 +5,7 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.agents_sdk.mcp import connect_mcp
 from app.routers import chat, documents
 from app.services.config import LOG_LEVEL, LOGFIRE_TOKEN, ensure_dirs
 
@@ -39,6 +40,11 @@ app.include_router(chat.router)
 @app.on_event("startup")
 async def startup():
     ensure_dirs()
+    try:
+        await connect_mcp()
+        logger.info("Filesystem MCP preconnected during startup")
+    except Exception as e:
+        logger.warning(f"Filesystem MCP preconnect failed at startup: {e}")
     logger.info("Study Assistant backend started")
 
 

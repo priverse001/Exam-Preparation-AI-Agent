@@ -32,19 +32,28 @@ Helpful prerequisites:
 - basic Git usage
 - basic understanding of APIs or web apps
 
+## Recommended Setup Path
+
+Preferred setup for students:
+- Use **GitHub Codespaces** on your own fork of the repository.
+- This gives everyone the same Linux dev environment and removes almost all local machine dependency issues.
+
+Fallback setup:
+- If you do not want to use Codespaces, use the local devcontainer workflow with Docker.
+
 ## What You Should Install Before the Workshop
 
-Please complete setup before the session if possible.
+For the preferred Codespaces path, you only need:
+- a GitHub account
+- access to GitHub Codespaces
+- a modern browser
 
-Required:
+For the fallback local devcontainer path, you need:
 - Git
 - Docker Desktop (Windows/macOS) or Docker Engine (Linux)
 - One IDE: VS Code, Cursor, or PyCharm
 
-Recommended setup path:
-- Use the devcontainer workflow. This gives you Python, Node.js, and uv inside the container and avoids most machine-specific issues.
-
-Windows note:
+Windows note for the fallback local path:
 - If you use Docker Desktop on Windows, make sure WSL 2 is installed and Docker Desktop is using the WSL 2 backend.
 
 ## Install Links
@@ -63,48 +72,41 @@ Windows note:
 Repository for the workshop:
 - <https://github.com/regalmoix/Exam-Preparation-AI-Agent/tree/bhu>
 
-Please make sure you are on the `bhu` branch.
+Preferred Codespaces preparation:
 
-Recommended clone command:
+1. Open the repository page and switch to the `bhu` branch.
+2. Fork the repository while you are viewing the `bhu` branch.
+3. Open your fork and confirm the branch is still `bhu`.
+4. Create a new Codespace from that branch.
+5. In the Codespace terminal, use `README.md` as the main setup guide.
+
+Fallback local preparation:
+
+1. Clone the repository on the `bhu` branch.
+2. Confirm Docker starts successfully.
+3. Confirm `docker compose version` works.
+4. Open the repo in your IDE.
+5. If using VS Code or Cursor, make sure the Dev Containers extension is installed.
+
+Fallback local clone command:
 
 ```bash
 git clone https://github.com/regalmoix/Exam-Preparation-AI-Agent.git -b bhu
 ```
 
-If you already cloned the repo in some other way, run:
-
-```bash
-git fetch origin
-git checkout bhu
-```
-
-After cloning, use `README.md` in the repo as the main setup guide for the workshop.
-
-Then:
-
-1. Confirm Docker starts successfully.
-2. Confirm `docker compose version` works.
-3. Open the repo in your IDE.
-4. If using VS Code or Cursor, make sure the Dev Containers extension is installed.
-
-If you want to sanity-check your machine, run:
+If you want to sanity-check your machine for the fallback local path, run:
 
 - macOS/Linux: `./workshop/preflight.sh`
 - Windows PowerShell: `powershell -ExecutionPolicy Bypass -File .\workshop\preflight.ps1`
 
-PowerShell note:
+PowerShell note for the fallback local path:
 - If Windows blocks PowerShell scripts, run `Set-ExecutionPolicy -Scope Process Bypass` in that PowerShell window and retry.
 
 ## What “Ready” Looks Like
 
 You are workshop-ready if:
-- the repository is cloned locally
-- you are on the `bhu` branch
-- Docker starts successfully
-- `docker compose version` works
-- your IDE is installed and can open the repo
-- if using VS Code or Cursor, the Dev Containers extension is installed
-- on Windows, WSL 2 is installed and Docker Desktop is using the WSL 2 backend
+- for Codespaces: you have a fork, your Codespace is created from the `bhu` branch, and the repo opens successfully in the browser
+- for the fallback local path: the repository is cloned locally on `bhu`, Docker starts successfully, and your IDE can reopen the repo in the devcontainer
 
 ## OpenAI API Key
 

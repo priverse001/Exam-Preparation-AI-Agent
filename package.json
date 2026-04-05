@@ -2,11 +2,9 @@
   "name": "study-assistant-ai-boilerplate",
   "private": true,
   "scripts": {
-    "start": "concurrently --kill-others-on-fail --names backend,frontend \"npm run backend\" \"npm run frontend\"",
-    "frontend": "npm --prefix frontend install && npm --prefix frontend run dev -- --host 0.0.0.0 --port 5173",
+    "setup": "npm install && npm --prefix frontend install && uv sync",
+    "start": "node workshop/start.mjs",
+    "frontend": "npm --prefix frontend run dev -- --host 0.0.0.0 --port 5173",
     "backend": "uv sync && uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8002"
-  },
-  "devDependencies": {
-    "concurrently": "^9.1.2"
   }
 }

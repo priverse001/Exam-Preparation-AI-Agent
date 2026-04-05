@@ -46,66 +46,145 @@ If you are conducting the workshop:
 
 ---
 
-## Getting Started (Devcontainer — Recommended)
+## Getting Started (GitHub Codespaces — Recommended)
 
-The devcontainer gives you a fully configured environment with Python 3.11, Node.js 22, and `uv` pre-installed. It works identically on **Windows, macOS, and Linux**.
+For students, **GitHub Codespaces** is the preferred setup path.
 
-Recommended editors for the workshop:
-- `VS Code` + Dev Containers
-- `Cursor` + Dev Containers
-- `PyCharm` + Dev Containers
-
-Also supported:
-- any editor using the generic local setup path later in this README
+Why this is recommended:
+- everyone gets the same Linux environment
+- no local Docker, Node, Python, or `uv` setup is required
+- browser-based editing is enough for the workshop
+- the repo already includes a ready-to-use devcontainer config
 
 ### Before Class
 
-Install these before the workshop starts:
+For the recommended Codespaces path, you need:
 
-1. Docker Desktop
-2. Git
-3. One editor: `VS Code`, `Cursor`, or `PyCharm`
-4. An OpenAI API key
-5. This repository cloned locally
+1. A GitHub account
+2. Access to GitHub Codespaces
+3. An OpenAI API key, or a key provided during the workshop
+4. Your own fork of this repository on the `bhu` branch
 
-### Helper Scripts
+### Helper Scripts by Setup Path
 
-These scripts are meant to reduce setup trouble:
+Use the scripts that match your environment.
 
-- `./workshop/preflight.sh`
-- `powershell -ExecutionPolicy Bypass -File .\workshop\preflight.ps1`
+In GitHub Codespaces or any Linux devcontainer terminal:
 - `./workshop/init_env.sh`
-- `powershell -ExecutionPolicy Bypass -File .\workshop\init_env.ps1`
 - `./workshop/healthcheck.sh`
+- `./workshop/preflight.sh` only if you want an optional workspace sanity check
+
+On a local Windows machine using PowerShell:
+- `powershell -ExecutionPolicy Bypass -File .\workshop\preflight.ps1`
+- `powershell -ExecutionPolicy Bypass -File .\workshop\init_env.ps1`
 - `powershell -ExecutionPolicy Bypass -File .\workshop\healthcheck.ps1`
 
-Windows PowerShell note:
-
-- On some student machines, PowerShell script execution is blocked by policy.
-- For this workshop, use the commands above exactly as written with `powershell -ExecutionPolicy Bypass -File ...`.
-- Do not rely on running `.\workshop\preflight.ps1` directly unless your machine already allows local script execution.
-- If PowerShell still blocks script execution, open a fresh PowerShell window and run:
-  ```powershell
-  Set-ExecutionPolicy -Scope Process Bypass
-  ```
-  Then rerun the workshop script command in that same window.
-- Microsoft guide: [about_Execution_Policies](https://learn.microsoft.com/powershell/module/microsoft.powershell.core/about/about_execution_policies)
+On a local macOS/Linux host using the local devcontainer path:
+- `./workshop/preflight.sh`
+- `./workshop/init_env.sh`
+- `./workshop/healthcheck.sh`
 
 What the preflight scripts validate:
-
-- required for the recommended devcontainer path: `git`, `docker`, Docker daemon access, and `docker compose`
-- optional but required for the local path: Python `3.11+`, Node.js `22`, `npm 9+`, and `uv`
-- whether `.env` exists and whether `OPENAI_API_KEY` is populated
+- in Codespaces: workspace readiness, installed tools, and `.env` status
+- on a local devcontainer host: `git`, `docker`, Docker daemon access, `docker compose`, and `.env` status
+- for the pure local setup path: Python `3.11+`, Node.js `22`, `npm 9+`, and `uv`
 
 Recommended usage:
+1. In Codespaces, let the post-create setup finish. If it was interrupted, run `npm run setup`.
+2. Then run `./workshop/init_env.sh`, `npm run start`, and `./workshop/healthcheck.sh`.
+3. On a local devcontainer host, run the relevant preflight script before class.
+4. Use the env-init script instead of manually copying `.env.template`.
 
-1. Run the preflight script before class.
-2. Use the env-init script instead of manually copying `.env.template`.
-3. After `npm run start`, run the healthcheck script to confirm the app is reachable.
+### Step 1: Fork the Correct Branch and Create a Codespace
 
-### Step 0: Install prerequisites on your machine
+1. Open the repository on GitHub and switch to the `bhu` branch.
+2. Click **Fork** while viewing the `bhu` branch.
+3. Open your fork and confirm you are still on `bhu`.
+4. Click **Code** → **Codespaces** → **Create codespace on bhu**.
+5. Wait for the Codespace to finish its first-time setup.
 
-For the recommended devcontainer path, you need Git, Docker, Docker Compose support, and an editor on your host OS. Everything else runs inside the container.
+The repo's devcontainer will install Python, Node.js, npm, and `uv` automatically inside the Codespace.
+If Codespaces startup was interrupted, rerun:
+
+```bash
+npm run setup
+```
+
+### Optional: Generate a local scaffold branch
+
+The `bhu` branch is the canonical full solution. If you want students to work through checkpoint exercises, generate a local scaffold branch that starts fully working:
+
+```bash
+./workshop/create_scaffold_branch.sh
+git switch workshop-scaffold
+./workshop/workshop.sh status
+```
+
+This creates a local branch that is effectively `bhu + one local workshop commit`. Students can run the app end-to-end immediately, then strip one checkpoint at a time during the workshop. The workshop script restores checkpoints from the recorded solution commit with:
+
+```bash
+./workshop/workshop.sh solve 1
+./workshop/workshop.sh reset
+```
+
+### Step 2: Configure your API key
+
+Inside the Codespaces terminal:
+
+```bash
+./workshop/init_env.sh
+```
+
+Edit `.env` and add your OpenAI API key:
+
+```
+OPENAI_API_KEY=sk-proj-...
+```
+
+> Get a key at [platform.openai.com/api-keys](https://platform.openai.com/api-keys) if you don't have one.
+
+### Step 3: Start the app
+
+```bash
+npm run start
+```
+
+This single command:
+- starts the FastAPI backend on port **8002**
+- starts the Vite dev server on port **5173**
+
+If dependencies are missing because setup did not complete, run:
+
+```bash
+npm run setup
+```
+
+Optional health check:
+
+```bash
+./workshop/healthcheck.sh
+```
+
+### Step 4: Open the app in the browser
+
+In Codespaces, open the forwarded port for **5173** in the **Ports** tab or use the browser preview URL GitHub provides.
+
+Then:
+
+1. **Upload** a study document via the left panel, for example `resources/documents/CPU.md`.
+2. **Ask questions** such as `Explain the key concepts from my notes`.
+3. **Create revision notes** with `Create revision notes about CPU architecture and save them`.
+4. Confirm a notes file appears in the configured notes directory.
+
+---
+
+## Alternative: Local Devcontainer in Your IDE
+
+If you prefer not to use Codespaces, the next best option is the local devcontainer workflow in `VS Code`, `Cursor`, or `PyCharm`.
+
+### Prerequisites
+
+For the local devcontainer path, you need Git, Docker, Docker Compose support, and an editor on your host OS.
 
 | Software | Why | Install | Guide |
 |----------|-----|---------|-------|
@@ -135,7 +214,7 @@ Quick host checks:
   git --version
   ```
 
-### Step 1: Clone and open
+### Step 1: Clone and open locally
 
 If you use `VS Code`:
 
@@ -168,28 +247,11 @@ When the editor opens, you'll see a prompt:
 
 Or manually: `Ctrl+Shift+P` (or `Cmd+Shift+P` on macOS) → type **"Dev Containers: Reopen in Container"** → Enter.
 
-The first build takes 2-3 minutes (downloads the Docker image, installs Node.js 22, `uv`, and all project dependencies). Subsequent opens are instant.
-
-### Optional: Generate a local scaffold branch
-
-The `bhu` branch is the canonical full solution. If you want students to work through checkpoint exercises, generate a local scaffold branch that starts fully working:
-
-```bash
-./workshop/create_scaffold_branch.sh
-git switch workshop-scaffold
-./workshop/workshop.sh status
-```
-
-This creates a local branch that is effectively `bhu + one local workshop commit`. Students can run the app end-to-end immediately, then strip one checkpoint at a time during the workshop. The workshop script restores checkpoints from the recorded solution commit with:
-
-```bash
-./workshop/workshop.sh solve 1
-./workshop/workshop.sh reset
-```
+The first build takes 2-3 minutes. Subsequent opens are much faster.
 
 ### Step 2: Configure your API key
 
-Inside the container terminal (which opens automatically):
+Inside the container terminal:
 
 ```bash
 ./workshop/init_env.sh
@@ -216,10 +278,14 @@ npm run start
 ```
 
 This single command:
-- Installs Python dependencies (`uv sync`)
-- Installs frontend dependencies (`npm install`)
 - Starts the FastAPI backend on port **8002**
 - Starts the Vite dev server on port **5173**
+
+If dependencies are missing because setup did not complete, run:
+
+```bash
+npm run setup
+```
 
 Optional health check:
 
@@ -235,12 +301,12 @@ powershell -ExecutionPolicy Bypass -File .\workshop\healthcheck.ps1
 
 ### Step 4: Open in browser
 
-Navigate to **http://localhost:5173** on your host machine (ports are auto-forwarded by the devcontainer).
+Navigate to **http://localhost:5173** on your host machine.
 
 1. **Upload** a study document via the left panel (try `resources/documents/CPU.md`).
 2. **Ask questions** — *"Explain the key concepts from my notes"*
 3. **Create revision notes** — *"Create revision notes about CPU architecture and save them"*
-4. Check the `workshop_notes/` folder for saved markdown files.
+4. Check the configured notes directory for the saved markdown file.
 
 ---
 
@@ -341,7 +407,7 @@ Once the app is running:
 2. Upload `resources/documents/CPU.md`.
 3. Ask: `What is an instruction pointer?`
 4. Ask: `Create revision notes about CPU architecture and save them`.
-5. Confirm a file appears in `workshop_notes/`.
+5. Confirm a notes file appears in the configured notes directory.
 
 If all of that works, your setup is ready.
 
@@ -455,6 +521,7 @@ This app is a complete working example for the workshop presentation (`resources
 | Problem | Fix |
 |---------|-----|
 | `npm run start` fails with Node errors | Make sure Node 22+ is active: `node -v`. In devcontainer this is automatic. |
+| Codespaces or devcontainer shows `EACCES` under `node_modules` | Rebuild or reopen the container so `postStartCommand` can run `workshop/bootstrap_workspace.sh`. If setup was interrupted, run `bash ./workshop/bootstrap_workspace.sh && npm run setup`. |
 | Chat panel is blank | The ChatKit CDN script must load. Check your internet connection — the component loads from `cdn.platform.openai.com`. |
 | "Please upload study materials first" | Upload a document before asking content questions. Try `resources/documents/CPU.md`. |
 | Revision notes fail on first try | The MCP filesystem server needs a moment to connect on cold start. Retry the message. |

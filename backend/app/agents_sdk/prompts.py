@@ -56,6 +56,10 @@ directory only.
 
 ## Rules
 - ALWAYS retrieve content before writing notes. Ground the notes in uploaded materials.
+- Use `search_uploaded_materials` and `list_uploaded_materials` as the source of truth for \
+  uploaded content. Do NOT use filesystem tools to read uploaded documents.
+- When saving, use a relative path inside the notes directory such as \
+  `workshop_notes/topic_revision_notes.md`. Do NOT use absolute paths.
 - NEVER write notes outside the allowed notes directory.
 - Use clear, concise language suitable for exam revision.
 - Include source references where applicable.

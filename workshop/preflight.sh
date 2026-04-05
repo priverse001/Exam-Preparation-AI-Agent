@@ -8,6 +8,7 @@ REQUIRED_NODE_MAJOR=22
 REQUIRED_NPM_MAJOR=9
 REQUIRED_PYTHON_MAJOR=3
 REQUIRED_PYTHON_MINOR=11
+IS_CODESPACES="${CODESPACES:-false}"
 
 ok() {
     printf '[ok] %s\n' "$1"
@@ -156,16 +157,21 @@ check_optional_uv() {
 
 printf 'Workshop preflight for %s\n\n' "$PROJECT_DIR"
 
-printf 'Recommended devcontainer host requirements:\n'
-check_command git "Git"
-check_command docker "Docker CLI"
-
-if docker info >/dev/null 2>&1; then
-    ok "Docker daemon is running"
+if [[ "$IS_CODESPACES" == "true" ]]; then
+    printf 'Codespaces environment detected.\n'
+    printf 'Skipping host Docker/editor checks because the workspace already runs in a managed devcontainer.\n'
 else
-    fail "Docker daemon is not reachable. Start Docker Desktop or Docker Engine."
+    printf 'Recommended devcontainer host requirements:\n'
+    check_command git "Git"
+    check_command docker "Docker CLI"
+
+    if docker info >/dev/null 2>&1; then
+        ok "Docker daemon is running"
+    else
+        fail "Docker daemon is not reachable. Start Docker Desktop or Docker Engine."
+    fi
+    check_docker_compose
 fi
-check_docker_compose
 
 printf '\nOptional local setup checks:\n'
 check_optional_node_version
@@ -175,7 +181,7 @@ check_optional_uv
 
 if [[ -f "$PROJECT_DIR/.env" ]]; then
     ok ".env file exists"
-    if rg '^OPENAI_API_KEY=.+' "$PROJECT_DIR/.env" >/dev/null 2>&1; then
+    if grep -Eq '^OPENAI_API_KEY=.+' "$PROJECT_DIR/.env"; then
         ok "OPENAI_API_KEY is set in .env"
     else
         warn "OPENAI_API_KEY is missing in .env"
@@ -196,10 +202,15 @@ printf '\n'
 if [[ "$FAILURES" -eq 0 ]]; then
     printf 'Preflight passed with %s warning(s).\n' "$WARNINGS"
     printf 'Next steps:\n'
-    printf '  1. For the recommended path, open the repo in your editor and reopen in the devcontainer.\n'
-    printf '  2. For local setup, make sure Node %s, npm %s+, Python %s.%s+, and uv are installed.\n' "$REQUIRED_NODE_MAJOR" "$REQUIRED_NPM_MAJOR" "$REQUIRED_PYTHON_MAJOR" "$REQUIRED_PYTHON_MINOR"
-    printf '  3. Run ./workshop/init_env.sh and add OPENAI_API_KEY to .env if needed.\n'
-    printf '  4. Run npm run start, then ./workshop/healthcheck.sh.\n'
+    if [[ "$IS_CODESPACES" == "true" ]]; then
+        printf '  1. Run ./workshop/init_env.sh and add OPENAI_API_KEY to .env if needed.\n'
+        printf '  2. Run npm run start, then ./workshop/healthcheck.sh.\n'
+    else
+        printf '  1. For the recommended path, open the repo in your editor and reopen in the devcontainer.\n'
+        printf '  2. For local setup, make sure Node %s, npm %s+, Python %s.%s+, and uv are installed.\n' "$REQUIRED_NODE_MAJOR" "$REQUIRED_NPM_MAJOR" "$REQUIRED_PYTHON_MAJOR" "$REQUIRED_PYTHON_MINOR"
+        printf '  3. Run ./workshop/init_env.sh and add OPENAI_API_KEY to .env if needed.\n'
+        printf '  4. Run npm run start, then ./workshop/healthcheck.sh.\n'
+    fi
     exit 0
 fi
 

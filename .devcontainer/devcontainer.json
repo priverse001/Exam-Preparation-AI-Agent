@@ -3,9 +3,11 @@
   "dockerComposeFile": "../docker-compose.yml",
   "service": "app",
   "workspaceFolder": "/workspace",
+  "remoteUser": "vscode",
   "shutdownAction": "stopCompose",
   "forwardPorts": [5173, 8002],
-  "postCreateCommand": "npm install && npm --prefix frontend install && uv sync",
+  "postCreateCommand": "bash ./workshop/bootstrap_workspace.sh && npm run setup",
+  "postStartCommand": "bash ./workshop/bootstrap_workspace.sh",
   "customizations": {
     "vscode": {
       "settings": {
