@@ -24,7 +24,7 @@ function Write-Fail($Message) {
 function Test-Command($Name, $Label) {
     $Command = Get-Command $Name -ErrorAction SilentlyContinue
     if ($null -ne $Command) {
-        Write-Ok "$Label: $($Command.Source)"
+        Write-Ok "${Label}: $($Command.Source)"
     } else {
         Write-Fail "$Label not found"
     }
@@ -36,7 +36,7 @@ function Test-OptionalCommand($Name, $Label) {
         try {
             $VersionLine = (& $Name --version 2>$null | Select-Object -First 1)
             if ($VersionLine) {
-                Write-Ok "$Label: $VersionLine"
+                Write-Ok "${Label}: $VersionLine"
             } else {
                 Write-Ok "$Label is installed"
             }
