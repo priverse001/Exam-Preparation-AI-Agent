@@ -125,7 +125,6 @@ repo/
   resources/
     documents/
     code_examples/
-  setup/
   .devcontainer/
   pyproject.toml
   uv.lock

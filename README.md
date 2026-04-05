@@ -5,8 +5,7 @@ An AI-powered study assistant that lets students upload course materials and cha
 ## Who Should Read What
 
 If you are a student or workshop participant:
-- start with `README.md`
-- then follow `setup/SETUP_GUIDE.md`
+- use `README.md` as the full setup and workshop guide
 
 If you are conducting the workshop:
 - use `resources/DEMO_PLAYBOOK.md` as the instructor runbook
@@ -57,21 +56,84 @@ Recommended editors for the workshop:
 - `PyCharm` + Dev Containers
 
 Also supported:
-- any editor using the generic local setup path in `setup/SETUP_GUIDE.md`
+- any editor using the generic local setup path later in this README
+
+### Before Class
+
+Install these before the workshop starts:
+
+1. Docker Desktop
+2. Git
+3. One editor: `VS Code`, `Cursor`, or `PyCharm`
+4. An OpenAI API key
+5. This repository cloned locally
+
+### Helper Scripts
+
+These scripts are meant to reduce setup trouble:
+
+- `./workshop/preflight.sh`
+- `powershell -ExecutionPolicy Bypass -File .\workshop\preflight.ps1`
+- `./workshop/init_env.sh`
+- `powershell -ExecutionPolicy Bypass -File .\workshop\init_env.ps1`
+- `./workshop/healthcheck.sh`
+- `powershell -ExecutionPolicy Bypass -File .\workshop\healthcheck.ps1`
+
+Windows PowerShell note:
+
+- On some student machines, PowerShell script execution is blocked by policy.
+- For this workshop, use the commands above exactly as written with `powershell -ExecutionPolicy Bypass -File ...`.
+- Do not rely on running `.\workshop\preflight.ps1` directly unless your machine already allows local script execution.
+- If PowerShell still blocks script execution, open a fresh PowerShell window and run:
+  ```powershell
+  Set-ExecutionPolicy -Scope Process Bypass
+  ```
+  Then rerun the workshop script command in that same window.
+- Microsoft guide: [about_Execution_Policies](https://learn.microsoft.com/powershell/module/microsoft.powershell.core/about/about_execution_policies)
+
+What the preflight scripts validate:
+
+- required for the recommended devcontainer path: `git`, `docker`, Docker daemon access, and `docker compose`
+- optional but required for the local path: Python `3.11+`, Node.js `22`, `npm 9+`, and `uv`
+- whether `.env` exists and whether `OPENAI_API_KEY` is populated
+
+Recommended usage:
+
+1. Run the preflight script before class.
+2. Use the env-init script instead of manually copying `.env.template`.
+3. After `npm run start`, run the healthcheck script to confirm the app is reachable.
 
 ### Step 0: Install prerequisites on your machine
 
-You need only two things installed on your host OS — everything else runs inside the container.
+For the recommended devcontainer path, you need Git, Docker, Docker Compose support, and an editor on your host OS. Everything else runs inside the container.
 
-| Software | Why | Install |
-|----------|-----|---------|
-| **Docker Desktop** | Runs the devcontainer | [docker.com/get-started](https://www.docker.com/get-started/) — Windows/macOS/Linux. On Windows, enable **WSL 2 backend** during setup. |
-| **VS Code or Cursor** | Recommended editor for the workshop | [code.visualstudio.com](https://code.visualstudio.com/) or [cursor.com](https://www.cursor.com/) |
-| **Dev Containers extension** | Opens the project inside Docker | In VS Code or Cursor, install the Dev Containers extension (`ms-vscode-remote.remote-containers`) |
+| Software | Why | Install | Guide |
+|----------|-----|---------|-------|
+| **Git** | Clone the repository | [git-scm.com](https://git-scm.com/) | [Install Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) |
+| **Docker Desktop / Docker Engine** | Runs the devcontainer | [docker.com/get-started](https://www.docker.com/get-started/) — Windows/macOS/Linux. On Windows, enable **WSL 2 backend** during setup. | [Docker Desktop install](https://docs.docker.com/desktop/), [Docker Engine install](https://docs.docker.com/engine/install/) |
+| **Docker Compose support** | Required because the devcontainer uses `docker-compose.yml` | Included with modern Docker Desktop and current Docker Engine installs as `docker compose` | [docker compose docs](https://docs.docker.com/compose/) |
+| **VS Code, Cursor, or PyCharm** | Recommended editor for the workshop | [code.visualstudio.com](https://code.visualstudio.com/), [cursor.com](https://www.cursor.com/), or PyCharm | [VS Code](https://code.visualstudio.com/docs/setup/setup-overview), [Cursor](https://docs.cursor.com/get-started/installation), [PyCharm](https://www.jetbrains.com/help/pycharm/installation-guide.html) |
+| **Dev Containers extension / IDE workflow** | Opens the project inside Docker | In VS Code or Cursor, install the Dev Containers extension (`ms-vscode-remote.remote-containers`). In PyCharm, use the IDE's devcontainer workflow. | [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers), [PyCharm Dev Containers](https://www.jetbrains.com/help/pycharm/start-dev-container-inside-ide.html) |
 
-> **Windows users**: Make sure Docker Desktop is running with the WSL 2 backend (Settings → General → "Use the WSL 2 based engine"). This is required for the Linux container to work.
+> **Windows users**: Make sure Docker Desktop is running with the WSL 2 backend (Settings → General → "Use the WSL 2 based engine"). This is required for the Linux container to work. If WSL is not installed yet, follow [Install WSL](https://learn.microsoft.com/windows/wsl/install).
 
 > **Linux users**: If you don't want Docker Desktop, install Docker Engine directly: [docs.docker.com/engine/install](https://docs.docker.com/engine/install/). Make sure your user is in the `docker` group (`sudo usermod -aG docker $USER`).
+
+Quick host checks:
+
+- Windows:
+  ```powershell
+  wsl --status
+  docker --version
+  docker compose version
+  git --version
+  ```
+- macOS / Linux:
+  ```bash
+  docker --version
+  docker compose version
+  git --version
+  ```
 
 ### Step 1: Clone and open
 
@@ -90,6 +152,15 @@ git clone https://github.com/regalmoix/Exam-Preparation-AI-Agent.git -b bhu
 cd Exam-Preparation-AI-Agent
 cursor .
 ```
+
+If you use `PyCharm`:
+
+```bash
+git clone https://github.com/regalmoix/Exam-Preparation-AI-Agent.git -b bhu
+cd Exam-Preparation-AI-Agent
+```
+
+Then open the project in `PyCharm` and use the IDE's devcontainer workflow to reopen the project in the container.
 
 When the editor opens, you'll see a prompt:
 
@@ -121,7 +192,13 @@ This creates a local branch that is effectively `bhu + one local workshop commit
 Inside the container terminal (which opens automatically):
 
 ```bash
-cp .env.template .env
+./workshop/init_env.sh
+```
+
+On Windows PowerShell:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\workshop\init_env.ps1
 ```
 
 Edit `.env` and add your OpenAI API key:
@@ -144,6 +221,18 @@ This single command:
 - Starts the FastAPI backend on port **8002**
 - Starts the Vite dev server on port **5173**
 
+Optional health check:
+
+```bash
+./workshop/healthcheck.sh
+```
+
+On Windows PowerShell:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\workshop\healthcheck.ps1
+```
+
 ### Step 4: Open in browser
 
 Navigate to **http://localhost:5173** on your host machine (ports are auto-forwarded by the devcontainer).
@@ -162,11 +251,38 @@ If you prefer running directly on your machine without Docker, follow this path.
 ### Prerequisites
 
 - Python 3.11+
-- Node.js 22+ (`nvm install 22` recommended)
+- Node.js 22 (`.nvmrc` is pinned to `22`)
+- npm 9+
 - [uv](https://docs.astral.sh/uv/getting-started/installation/) — `curl -LsSf https://astral.sh/uv/install.sh | sh`
+- Git
 - OpenAI API key
 
+Install guides for local setup:
+
+- Python: [python.org downloads](https://www.python.org/downloads/)
+- Node.js: [Node.js downloads](https://nodejs.org/en/download) or [nvm-sh/nvm](https://github.com/nvm-sh/nvm)
+- uv: [uv installation guide](https://docs.astral.sh/uv/getting-started/installation/)
+
+Quick local checks:
+
+- macOS / Linux:
+  ```bash
+  python3 --version
+  node --version
+  npm --version
+  uv --version
+  ```
+- Windows PowerShell:
+  ```powershell
+  python --version
+  node --version
+  npm --version
+  uv --version
+  ```
+
 ### Steps
+
+macOS / Linux:
 
 ```bash
 git clone https://github.com/regalmoix/Exam-Preparation-AI-Agent.git -b bhu
@@ -176,16 +292,77 @@ cd Exam-Preparation-AI-Agent
 # ./workshop/create_scaffold_branch.sh
 # git switch workshop-scaffold
 
-cp .env.template .env
+./workshop/init_env.sh
 # Edit .env → add OPENAI_API_KEY
 
+nvm install 22
 nvm use 22
+uv sync
+npm install
 npm run start
 ```
 
 Open **http://localhost:5173**.
 
-For full step-by-step instructions, including Windows/WSL notes, IDE-specific devcontainer setup, and a generic local fallback, see `setup/SETUP_GUIDE.md`.
+Optional health check:
+
+```bash
+./workshop/healthcheck.sh
+```
+
+Windows PowerShell:
+
+```powershell
+git clone https://github.com/regalmoix/Exam-Preparation-AI-Agent.git -b bhu
+cd Exam-Preparation-AI-Agent
+
+powershell -ExecutionPolicy Bypass -File .\workshop\init_env.ps1
+# Edit .env and add OPENAI_API_KEY
+
+python --version
+node --version
+npm --version
+uv --version
+npm install
+npm run start
+```
+
+On Windows PowerShell:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\workshop\healthcheck.ps1
+```
+
+### First Run Checklist
+
+Once the app is running:
+
+1. Open `http://localhost:5173`.
+2. Upload `resources/documents/CPU.md`.
+3. Ask: `What is an instruction pointer?`
+4. Ask: `Create revision notes about CPU architecture and save them`.
+5. Confirm a file appears in `workshop_notes/`.
+
+If all of that works, your setup is ready.
+
+### Workshop Exercise Flow
+
+The workshop branch starts fully working. During the session, strip exactly one checkpoint at a time.
+
+Useful commands:
+
+```bash
+./workshop/workshop.sh status
+./workshop/workshop.sh checkpoint 1
+./workshop/workshop.sh solve 1
+./workshop/workshop.sh reset
+```
+
+How it works:
+- `status` shows whether any checkpoint is currently active
+- `checkpoint N` strips one exercise and prints which files to edit
+- `solve N` restores the official solution for that checkpoint
+- only one checkpoint can be active at a time
 
 ---
 

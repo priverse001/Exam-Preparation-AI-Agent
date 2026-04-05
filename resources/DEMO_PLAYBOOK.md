@@ -34,22 +34,29 @@
 
 ```bash
 # 1. Ensure .env has your API key
-cat .env  # verify OPENAI_API_KEY is set
+./workshop/init_env.sh
+# Edit .env and verify OPENAI_API_KEY is set
 
-# 2. Start the app
+# 2. Run a quick host preflight if needed
+./workshop/preflight.sh
+
+# 3. Start the app
 nvm use 22
 npm run start
 
-# 3. Upload sample documents (so there's data to demo with)
+# 4. Confirm backend/frontend are reachable
+./workshop/healthcheck.sh
+
+# 5. Upload sample documents (so there's data to demo with)
 curl -X POST http://localhost:8002/exam-assistant/documents/upload \
   -F "file=@resources/documents/CPU.md"
 curl -X POST http://localhost:8002/exam-assistant/documents/upload \
   -F "file=@resources/documents/Numpy.md"
 
-# 4. Warm up MCP (send one message to trigger connection)
+# 6. Warm up MCP (send one message to trigger connection)
 # Just open http://localhost:5173 and ask "Hi"
 
-# 5. Verify terminal shows emoji logging
+# 7. Verify terminal shows emoji logging
 # You should see: 🤖 Agent started: TriageAgent
 ```
 
@@ -118,19 +125,27 @@ Open two windows side by side:
 
 Tell students to use the devcontainer if possible. VS Code, Cursor, and PyCharm all support that path. If someone does not want to use a devcontainer, the generic local setup path is also fine.
 
+Point students to `README.md` as the only student-facing setup guide.
+
 Student setup commands:
 
 ```bash
 git clone https://github.com/regalmoix/Exam-Preparation-AI-Agent.git -b bhu
 cd Exam-Preparation-AI-Agent
 
-# Open in devcontainer if using VS Code or Cursor.
+# Optional but recommended before opening the IDE:
+./workshop/preflight.sh
+
+# Open in devcontainer if using VS Code, Cursor, or PyCharm.
 # Then in the terminal:
-cp .env.template .env
+./workshop/init_env.sh
 # Edit .env and add OPENAI_API_KEY
 
 # Start the full working app
 npm run start
+
+# Confirm the app is reachable
+./workshop/healthcheck.sh
 ```
 
 If you want students to use the checkpoint workflow, tell them to create a local workshop branch after the app is running:

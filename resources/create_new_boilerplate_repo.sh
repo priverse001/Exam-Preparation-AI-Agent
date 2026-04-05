@@ -20,7 +20,6 @@ mkdir -p \
   "$TARGET_DIR/backend/app/routers" \
   "$TARGET_DIR/backend/app/services" \
   "$TARGET_DIR/frontend/src" \
-  "$TARGET_DIR/setup" \
   "$TARGET_DIR/.devcontainer"
 
 cp -R "$SOURCE_REPO/resources" "$TARGET_DIR/resources"
@@ -248,28 +247,6 @@ quote-style = "double"
 select = ["E", "F", "I", "W", "UP", "ASYNC", "B", "RUF", "FAST"]
 ignore = ["E501"]
 fixable = ["ALL"]
-EOF
-
-cat > "$TARGET_DIR/setup/SETUP_GUIDE.md" <<'EOF'
-# Setup Guide
-
-## Recommended
-
-Use Docker/devcontainer for the workshop path.
-
-## Local
-
-```bash
-cp .env.template .env
-uv sync
-npm install
-npm run start
-```
-
-## References
-
-- `resources/BOILERPLATE_IMPLEMENTATION_SPEC.md`
-- `resources/BOILERPLATE_LLM_PROMPT.md`
 EOF
 
 cat > "$TARGET_DIR/backend/app/main.py" <<'EOF'

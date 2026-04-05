@@ -25,7 +25,7 @@ Create a local-first study assistant where users can upload study materials, ask
 
 ## Architecture Requirements
 
-- Monorepo structure with `backend/`, `frontend/`, `resources/`, and `setup/`.
+- Monorepo structure with `backend/`, `frontend/`, and `resources/`.
 - Python FastAPI backend.
 - React + TypeScript frontend using Vite.
 - OpenAI Agents SDK for agents, tools, handoffs, and sessions.
@@ -53,7 +53,6 @@ repo/
   resources/
     documents/
     code_examples/
-  setup/
   .devcontainer/
   pyproject.toml
   uv.lock
@@ -286,7 +285,6 @@ The project is complete when:
 If useful, also generate:
 
 - `README.md`
-- `setup/SETUP_GUIDE.md`
 - sample documents in `resources/documents/`
 - basic example scripts in `resources/code_examples/`
 - `.pre-commit-config.yaml`
