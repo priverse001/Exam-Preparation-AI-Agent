@@ -97,7 +97,7 @@ export async function waitForAssistantReply(page: Page, timeoutMs = 60_000): Pro
     const lastArticle = articles.last();
     const currentText = (await lastArticle.textContent()) ?? "";
 
-    if (currentText === lastText && currentText.length > 30) {
+    if (currentText === lastText && currentText.length > 80) {
       stableCount++;
       if (stableCount >= 3) return currentText;
     } else {

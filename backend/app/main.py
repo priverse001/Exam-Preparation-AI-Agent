@@ -13,18 +13,6 @@ from app.services.log_service import setup_logging
 setup_logging()
 logger = logging.getLogger(__name__)
 
-# Optional logfire tracing (Presentation Slide 19: Tracing and Debugging)
-if LOGFIRE_TOKEN:
-    try:
-        import logfire
-
-        logfire.configure()
-        logfire.instrument_fastapi()
-        logfire.instrument_openai_agents()
-        logger.info("Logfire tracing enabled (FastAPI + Agents SDK)")
-    except Exception as e:
-        logger.warning(f"Logfire setup failed (non-critical): {e}")
-
 app = FastAPI(title="Study Assistant AI Boilerplate")
 
 app.add_middleware(
@@ -36,6 +24,18 @@ app.add_middleware(
 
 app.include_router(documents.router)
 app.include_router(chat.router)
+
+# Optional logfire tracing (Presentation Slide 19: Tracing and Debugging)
+if LOGFIRE_TOKEN:
+    try:
+        import logfire
+
+        logfire.configure()
+        logfire.instrument_fastapi(app)
+        logfire.instrument_openai_agents()
+        logger.info("Logfire tracing enabled (FastAPI + Agents SDK)")
+    except Exception as e:
+        logger.exception(f"Logfire setup failed (non-critical): {e}")
 
 
 @app.on_event("startup")

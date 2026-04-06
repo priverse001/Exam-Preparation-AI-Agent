@@ -68,7 +68,7 @@ async function chat(
   let stable = 0;
   while (Date.now() - startTime < timeoutMs) {
     const text = (await frame.locator("article").last().textContent()) ?? "";
-    if (text === lastText && text.length > 20) {
+    if (text === lastText && text.length > 80) {
       stable++;
       if (stable >= 3) {
         await breathe(page, 1500); // let viewer read the final answer
