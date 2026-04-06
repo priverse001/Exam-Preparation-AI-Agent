@@ -17,6 +17,30 @@ import { defineConfig } from "@playwright/test";
  *   3. "demo"   — standalone full walkthrough (runs its own setup, no deps)
  */
 const isHeaded = process.argv.includes("--headed");
+const projectArg = process.argv.find((arg) => arg.startsWith("--project="));
+const projectFlagIndex = process.argv.indexOf("--project");
+const requestedProjectName =
+  projectArg?.split("=", 2)[1] ?? (projectFlagIndex >= 0 ? process.argv[projectFlagIndex + 1] : null);
+const includeDemoProject = requestedProjectName === "demo";
+
+const projects = [
+  {
+    name: "setup",
+    testMatch: "setup.spec.ts",
+  },
+  {
+    name: "tests",
+    testIgnore: ["setup.spec.ts", "demo-walkthrough.spec.ts"],
+    dependencies: ["setup"],
+  },
+];
+
+if (includeDemoProject) {
+  projects.push({
+    name: "demo",
+    testMatch: "demo-walkthrough.spec.ts",
+  });
+}
 
 export default defineConfig({
   testDir: "./e2e",
@@ -35,19 +59,5 @@ export default defineConfig({
     // so you can actually watch what's happening
     ...(isHeaded ? { launchOptions: { slowMo: 600 } } : {}),
   },
-  projects: [
-    {
-      name: "setup",
-      testMatch: "setup.spec.ts",
-    },
-    {
-      name: "tests",
-      testIgnore: ["setup.spec.ts", "demo-walkthrough.spec.ts"],
-      dependencies: ["setup"],
-    },
-    {
-      name: "demo",
-      testMatch: "demo-walkthrough.spec.ts",
-    },
-  ],
+  projects,
 });
