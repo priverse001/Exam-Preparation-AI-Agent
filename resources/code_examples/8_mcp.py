@@ -1,18 +1,22 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 from pathlib import Path
 
-import prettytable
+import _logfire_setup
+
 from agents import Agent
 from agents import Runner
 from agents.mcp import MCPServerStdio
+
+logger = logging.getLogger("workshop.mcp")
 
 
 async def main():
     repo_path = Path(__file__).resolve().parent.parent.parent.resolve()
 
-    print(f"Allowing MCP the access to {repo_path=}")
+    logger.info(f"Allowing MCP the access to {repo_path=}")
 
     async with MCPServerStdio(
         params={
@@ -27,21 +31,15 @@ async def main():
         )
         tools = await FileSystemMCPServer.list_tools()
 
-        table = prettytable.PrettyTable()
-        table.field_names = ["Name", "Description"]
-        table.hrules = prettytable.ALL
-
+        logger.info("Available MCP tools:")
         for tool in tools:
-            table.add_row([tool.name, tool.description])
-        table.max_width = 120
-        print(table)
+            logger.info("- %s: %s", tool.name, tool.description)
 
-        print("=" * 120)
+        logger.info("=" * 120)
 
-        while True:
-            result = await Runner.run(agent, input("Enter query to FileSystemAgent: "))
-            print(result.final_output)
+        result = await Runner.run(agent, "List the top-level files and directories in this project")
+        logger.info(result.final_output)
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(_logfire_setup.run_example("8_mcp", main()))

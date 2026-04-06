@@ -1,11 +1,16 @@
 from __future__ import annotations
 
 import asyncio
+import logging
+
+import _logfire_setup
 
 from agents import Agent
 from agents import Runner
 from agents import function_tool
 from pydantic import BaseModel
+
+logger = logging.getLogger("workshop.tools")
 
 
 # Step 1: Define the tool output structure
@@ -42,8 +47,8 @@ weather_agent = Agent(
 # Step 4: Run the agent
 async def main():
     result = await Runner.run(weather_agent, "What's the weather like in Tokyo?")
-    print(result.final_output)
+    logger.info(result.final_output)
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(_logfire_setup.run_example("3_tools", main()))

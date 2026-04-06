@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 import asyncio
+import logging
+
+import _logfire_setup
 
 from openai import AsyncOpenAI
 
+logger = logging.getLogger("workshop.basic_chat")
 
 # Initialize the OpenAI client
 client = AsyncOpenAI()
@@ -27,9 +31,9 @@ async def basic_chat():
 
     # Extract the response
     answer = response.choices[0].message.content
-    print(f"AI: {answer}")
+    logger.info(f"AI: {answer}")
 
 
 # Run the example
 if __name__ == "__main__":
-    asyncio.run(basic_chat())
+    asyncio.run(_logfire_setup.run_example("1_basic_chat", basic_chat()))

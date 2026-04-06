@@ -1,11 +1,16 @@
 from __future__ import annotations
 
 import asyncio
+import logging
+
+import _logfire_setup
 
 from agents import Agent
 from agents import Runner
 from agents import function_tool
 from pydantic import BaseModel
+
+logger = logging.getLogger("workshop.realworld_agent")
 
 
 # Define structured output for study notes
@@ -26,7 +31,7 @@ def search_notes(topic: str) -> str:
         topic: The subject or concept to search for
     """
     # Simulated knowledge base
-    print("Searching for:", topic)
+    logger.info("Searching for: %s", topic)
 
     knowledge = {
         "data structures": "Arrays: contiguous memory, O(1) access. Linked Lists: dynamic, O(n) access. Trees: hierarchical structure.",
@@ -64,18 +69,18 @@ async def main():
     # Get structured output
     notes: StudyNotes = result.final_output
 
-    print(f"\n📚 {notes.topic.upper()}\n")
-    print("Key Concepts:")
+    logger.info(f"\n📚 {notes.topic.upper()}\n")
+    logger.info("Key Concepts:")
     for i, concept in enumerate(notes.key_concepts, 1):
-        print(f"  {i}. {concept}")
+        logger.info(f"  {i}. {concept}")
 
-    print("\n📝 Summary:")
-    print(f"  {notes.summary}")
+    logger.info("\n📝 Summary:")
+    logger.info(f"  {notes.summary}")
 
-    print("\n❓ Practice Questions:")
+    logger.info("\n❓ Practice Questions:")
     for i, q in enumerate(notes.practice_questions, 1):
-        print(f"  {i}. {q}")
+        logger.info(f"  {i}. {q}")
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(_logfire_setup.run_example("5_realworld_agent", main()))

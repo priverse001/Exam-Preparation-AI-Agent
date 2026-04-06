@@ -32,6 +32,7 @@ if LOGFIRE_TOKEN:
 
         logfire.configure()
         logfire.instrument_fastapi(app)
+        logfire.instrument_openai()
         logfire.instrument_openai_agents()
         logger.info("Logfire tracing enabled (FastAPI + Agents SDK)")
     except Exception as e:

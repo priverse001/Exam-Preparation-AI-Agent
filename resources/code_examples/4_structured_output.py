@@ -1,11 +1,16 @@
 from __future__ import annotations
 
 import asyncio
+import logging
+
+import _logfire_setup
 
 from agents import Agent
 from agents import Runner
 from pydantic import BaseModel
 from pydantic import Field
+
+logger = logging.getLogger("workshop.structured_output")
 
 
 class CityInfo(BaseModel):
@@ -31,13 +36,13 @@ async def main():
     result = await Runner.run(agent, "Tell me about Paris")
     city_data: CityInfo = result.final_output
 
-    print(city_data)
-    print("----------------------------------------")
-    print(f"{city_data.city}, {city_data.country}")
-    print(f"Population: {city_data.population:,}")
-    print(f"Famous for: {', '.join(city_data.famous_for)}")
-    print(f"Fun fact: {city_data.fun_fact}")
+    logger.info(city_data)
+    logger.info("----------------------------------------")
+    logger.info(f"{city_data.city}, {city_data.country}")
+    logger.info(f"Population: {city_data.population:,}")
+    logger.info(f"Famous for: {', '.join(city_data.famous_for)}")
+    logger.info(f"Fun fact: {city_data.fun_fact}")
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(_logfire_setup.run_example("4_structured_output", main()))

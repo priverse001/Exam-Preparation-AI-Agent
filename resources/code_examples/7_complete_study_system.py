@@ -1,11 +1,16 @@
 from __future__ import annotations
 
 import asyncio
+import logging
+
+import _logfire_setup
 
 from agents import Agent
 from agents import Runner
 from agents import function_tool
 from pydantic import BaseModel
+
+logger = logging.getLogger("workshop.complete_study_system")
 
 
 # ========== TOOLS ==========
@@ -137,37 +142,37 @@ async def main():
     ]
 
     for query in queries:
-        print("\n" + "=" * 60)
-        print(f"📝 STUDENT QUERY: {query}")
-        print("=" * 60)
+        logger.info("\n" + "=" * 60)
+        logger.info(f"📝 STUDENT QUERY: {query}")
+        logger.info("=" * 60)
 
-        result = await Runner.run(triage_agent, query)
+        result = await Runner.run(triage_agent, query, max_turns=25)
 
         if isinstance(result.final_output, StudyPlan):
             plan = result.final_output
-            print(f"\n📚 STUDY PLAN: {plan.topic}")
-            print(f"⏰ Time Needed: {plan.study_time_estimate}")
-            print("\n📖 Concepts to Review:")
+            logger.info(f"\n📚 STUDY PLAN: {plan.topic}")
+            logger.info(f"⏰ Time Needed: {plan.study_time_estimate}")
+            logger.info("\n📖 Concepts to Review:")
             for concept in plan.concepts_to_review:
-                print(f"   • {concept}")
-            print("\n📚 Resources:")
+                logger.info(f"   • {concept}")
+            logger.info("\n📚 Resources:")
             for resource in plan.resources:
-                print(f"   • {resource}")
+                logger.info(f"   • {resource}")
 
         elif isinstance(result.final_output, QuizResults):
             quiz = result.final_output
-            print(f"\n📝 QUIZ: {quiz.topic}")
-            print(f"🎯 Difficulty: {quiz.difficulty}")
-            print(f"⏱️  Time Limit: {quiz.time_limit}")
-            print("\n❓ Questions:")
+            logger.info(f"\n📝 QUIZ: {quiz.topic}")
+            logger.info(f"🎯 Difficulty: {quiz.difficulty}")
+            logger.info(f"⏱️  Time Limit: {quiz.time_limit}")
+            logger.info("\n❓ Questions:")
             for i, q in enumerate(quiz.questions, 1):
-                print(f"   {i}. {q}")
+                logger.info(f"   {i}. {q}")
 
         else:
-            print(f"\n💡 ANSWER:\n{result.final_output}")
+            logger.info(f"\n💡 ANSWER:\n{result.final_output}")
 
-        print("\n")
+        logger.info("")
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(_logfire_setup.run_example("7_complete_study_system", main()))

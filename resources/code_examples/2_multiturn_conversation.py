@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 import asyncio
+import logging
+
+import _logfire_setup
 
 from openai import AsyncOpenAI
 
+logger = logging.getLogger("workshop.multiturn")
 
 # Initialize the OpenAI client
 client = AsyncOpenAI()
@@ -27,10 +31,10 @@ async def conversation_example():
 
     response2 = await client.chat.completions.create(model="gpt-4o-mini", messages=conversation)
 
-    print(response2.choices[0].message.content)
+    logger.info(response2.choices[0].message.content)
     # Output: "Your name is Alice and your favorite programming language is Python!"
 
 
 # Run the example
 if __name__ == "__main__":
-    asyncio.run(conversation_example())
+    asyncio.run(_logfire_setup.run_example("2_multiturn_conversation", conversation_example()))

@@ -2,11 +2,16 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
+
+import _logfire_setup
 
 from agents import Agent
 from agents import Runner
 from agents import function_tool
 from pydantic import BaseModel
+
+logger = logging.getLogger("workshop.travel_agent")
 
 
 # Tool 1: Weather forecast
@@ -76,13 +81,13 @@ async def main():
 
     plan: TravelPlan = result.final_output
 
-    print(f"\n✈️ TRAVEL PLAN TO {plan.destination.upper()} ✈️")
-    print(f"📅 Dates: {plan.travel_dates}")
-    print(f"🌤️  Weather: {plan.weather_summary}")
-    print(f"✈️ Flight: {plan.flight_recommendation}")
-    print(f"🏨 Hotel: {plan.hotel_recommendation}")
-    print(f"💰 Budget: ${plan.estimated_budget}")
+    logger.info(f"\n✈️ TRAVEL PLAN TO {plan.destination.upper()} ✈️")
+    logger.info(f"📅 Dates: {plan.travel_dates}")
+    logger.info(f"🌤️  Weather: {plan.weather_summary}")
+    logger.info(f"✈️ Flight: {plan.flight_recommendation}")
+    logger.info(f"🏨 Hotel: {plan.hotel_recommendation}")
+    logger.info(f"💰 Budget: ${plan.estimated_budget}")
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(_logfire_setup.run_example("6_travel_agent", main()))
